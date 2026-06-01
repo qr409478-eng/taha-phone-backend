@@ -1,0 +1,12 @@
+{
+  "name": "taha-phone-online",
+  "version": "1.0.0",
+  "description": "منصة طه فون العالمية لصيانة الهواتف والحسابات",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

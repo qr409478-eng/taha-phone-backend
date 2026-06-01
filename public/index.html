@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طه فون | Taha Phone - المنصة الذكية لصيانة الهواتف</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon-border { box-shadow: 0 0 15px rgba(20, 184, 166, 0.5); }
+        .neon-text { text-shadow: 0 0 10px rgba(20, 184, 166, 0.6); }
+        .neon-card-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .neon-card-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-teal-500 selection:text-slate-950">
+
+    <div class="max-w-4xl mx-auto p-4">
+        
+        <!-- الهيدر السينمائي للمحل -->
+        <header class="text-center my-8 relative py-6 bg-slate-900/60 rounded-2xl border border-teal-500/20 neon-border">
+            <h1 class="text-5xl font-black tracking-wider text-teal-400 neon-text animate-pulse">طه فون</h1>
+            <p class="text-sm text-slate-400 font-medium mt-2 tracking-widest">TAHA PHONE • تكنولوجيا الصيانة الاحترافية عن بعد</p>
+            <div class="absolute top-2 left-2 flex gap-1">
+                <span class="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+                <span class="text-[9px] text-teal-400 font-mono">ONLINE</span>
+            </div>
+        </header>
+
+        <!-- أزرار التنقل السحرية بين الإدارة والزبائن -->
+        <div class="grid grid-cols-2 gap-2 mb-8 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+            <button onclick="switchView('client')" id="btnClientView" class="w-full text-sm font-bold py-3 rounded-lg bg-teal-500 text-slate-950 shadow-lg transition duration-350 cursor-pointer">🎯 بوابة الزبائن والاستفسارات</button>
+            <button onclick="switchView('shop')" id="btnShopView" class="w-full text-sm font-medium py-3 rounded-lg text-slate-400 hover:text-white transition duration-350 cursor-pointer">🔒 لوحة تحكم المحل والحسابات</button>
+        </div>
+
+        <!-- ======================= 1. واجهة العميل الخارجية ======================= -->
+        <div id="clientSection" class="space-y-6">
+            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h2 class="text-xl font-bold text-teal-300 flex items-center gap-2 mb-2">📱 أرسل عطل جهازك من بيتك أو شغلك</h2>
+                <p class="text-xs text-slate-400 mb-6">سجل تفاصيل جهازك وسيقوم مهندس الصيانة بفحصه والرد عليك فوراً بالتكلفة وإمكانية الإصلاح.</p>
+                
+                <form id="clientForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-medium">اسمك الكريم:</label>
+                            <input type="text" id="clientName" placeholder="اكتب اسمك للمتابعة به" class="w-full p-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-teal-400 transition" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1 font-medium">نوع وموديل الهاتف:</label>
+                            <input type="text" id="clientPhone" placeholder="مثال: Redmi A5 أو Poco X3" class="w-full p-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-teal-400 transition" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1 font-medium">وصف مشكلة الجهاز (سوفتوير أو هاردوير):</label>
+                        <textarea id="clientNotes" placeholder="اشرح المشكلة (مثال: حساب جوجل بعد الفورمات FRP، معلق على الشعار، تغيير شاشة...)" class="w-full p-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-teal-400 transition" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-black p-3.5 rounded-xl hover:opacity-90 transition transform hover:scale-[1.01] text-sm tracking-wide cursor-pointer shadow-lg shadow-teal-500/20">🚀 إرسال الطلب فوراً لـ طه فون</button>
+                </form>
+            </div>
+
+            <!-- متابعة الطلبات أونلاين للزبون -->
+            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h2 class="text-xl font-bold text-slate-200 mb-2">🕵️‍♂️ تتبع حالة جهازك والردود الذكية</h2>
+                <input type="text" id="clientSearchName" oninput="filterClientOrders()" placeholder="اكتب اسمك هنا لتصفية طلباتك ورؤية رد المحل..." class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-teal-400 placeholder-slate-600 focus:outline-none focus:border-teal-500 mb-4">
+                <div id="clientOrdersList" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- ======================= 2. لوحة الإدارة الداخلية والمالية ======================= -->
+        <div id="shopSection" class="hidden space-y-6">
+            <!-- كروت الحسابات النيون للشركاء -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-blue-500/30 text-center neon-card-blue">
+                    <span class="text-xs text-blue-400 font-bold block mb-1">أرباح السوفتوير (المقبوضة)</span>
+                    <span id="statTotalSoftware" class="text-3xl font-black text-blue-400 font-mono">0</span> <span class="text-xs text-blue-400">₪</span>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl border border-emerald-500/30 text-center neon-card-green">
+                    <span class="text-xs text-emerald-400 font-bold block mb-1">حصتك مبرمج (50%)</span>
+                    <span id="statMyShare" class="text-3xl font-black text-emerald-400 font-mono">0</span> <span class="text-xs text-emerald-400">₪</span>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl border border-amber-500/30 text-center">
+                    <span class="text-xs text-amber-400 font-bold block mb-1">حصة المحل (50%)</span>
+                    <span id="statShopShare" class="text-3xl font-black text-amber-400 font-mono">0</span> <span class="text-xs text-amber-400">₪</span>
+                </div>
+            </div>
+
+            <!-- تسجيل جهاز مباشر تم استلامه في طه فون -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 class="text-lg font-bold text-teal-400 mb-4">📥 تسجيل جهاز مستلم داخل المحل</h3>
+                <form id="deviceForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="customerName" placeholder="اسم الزبون" class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none" required>
+                    <input type="text" id="phoneModel" placeholder="نوع وموديل الهاتف" class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none" required>
+                    <select id="issueType" class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+                        <option value="سوفتوير">سوفتوير (يدخل تقاسم 50%)</option>
+                        <option value="هاردوير">هاردوير (حساب خاص بالمحل)</option>
+                    </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="cost" placeholder="المبلغ المطلوب شيكل" class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none" required>
+                        <input type="number" id="extraCost" placeholder="تكلفة سيرفر / بوكس خارجي" class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+                    </div>
+                    <textarea id="notes" placeholder="ملاحظات الصيانة والعمليات البرمجية..." class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none md:col-span-2" rows="2"></textarea>
+                    <button type="submit" class="bg-teal-500 text-slate-950 font-bold p-3 rounded-xl md:col-span-2 hover:bg-teal-400 transition cursor-pointer">حفظ وتثبيت بالسجل</button>
+                </form>
+            </div>
+
+            <!-- شريط البحث السريع والذكي -->
+            <input type="text" id="searchBox" oninput="searchDevices()" placeholder="🔍 ابحث الفوري باسم الزبون، العطل أو الهاتف..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-teal-400">
+
+            <!-- عرض الأجهزة والطلبات الواردة لـ طه فون -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                <h3 class="text-lg font-bold text-slate-200 mb-4">📋 قائمة الأجهزة والطلبات الحالية بالمحل</h3>
+                <div id="devicesList" class="space-y-4"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let allDevices = [];
+        let currentView = 'client';
+
+        function switchView(view) {
+            currentView = view;
+            const btnClient = document.getElementById('btnClientView');
+            const btnShop = document.getElementById('btnShopView');
+            
+            if(view === 'shop') {
+                document.getElementById('shopSection').classList.remove('hidden');
+                document.getElementById('clientSection').classList.add('hidden');
+                btnShop.className = "w-full text-sm font-bold py-3 rounded-lg bg-teal-500 text-slate-950 shadow-lg transition";
+                btnClient.className = "w-full text-sm font-medium py-3 rounded-lg text-slate-400 hover:text-white transition";
+            } else {
+                document.getElementById('shopSection').classList.add('hidden');
+                document.getElementById('clientSection').classList.remove('hidden');
+                btnClient.className = "w-full text-sm font-bold py-3 rounded-lg bg-teal-500 text-slate-950 shadow-lg transition";
+                btnShop.className = "w-full text-sm font-medium py-3 rounded-lg text-slate-400 hover:text-white transition";
+            }
+            loadDevices();
+        }
+
+        async function loadDevices() {
+            try {
+                const res = await fetch('/api/devices');
+                const data = await res.json();
+                allDevices = data.devices;
+
+                document.getElementById('statTotalSoftware').innerText = data.stats.totalSoftware;
+                document.getElementById('statMyShare').innerText = data.stats.myShare;
+                document.getElementById('statShopShare').innerText = data.stats.shopShare;
+
+                if(currentView === 'shop') {
+                    renderShopDevices(allDevices);
+                } else {
+                    filterClientOrders();
+                }
+            } catch (err) {
+                console.error("خطأ في الاتصال بالسيرفر");
+            }
+        }
+
+        function renderShopDevices(devices) {
+            const list = document.getElementById('devicesList');
+            list.innerHTML = '';
+
+            if(!devices || devices.length === 0) {
+                list.innerHTML = '<p class="text-slate-500 text-center py-4 text-xs">لا توجد سجلات حالية.</p>';
+                return;
+            }
+
+            devices.forEach(dev => {
+                if(dev.status === 'طلب معلق') {
+                    list.innerHTML += `
+                        <div class="border border-dashed border-teal-400/40 p-4 rounded-xl bg-teal-950/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="space-y-1 w-full md:w-2/3">
+                                <span class="inline-block text-[10px] font-bold bg-teal-400 text-slate-950 px-2 py-0.5 rounded-full">🌐 طلب فحص أونلاين وارد</span>
+                                <h4 class="font-bold text-lg text-white">${dev.phone_model}</h4>
+                                <p class="text-xs text-slate-300">الزبون: ${dev.customer_name}</p>
+                                <p class="text-xs text-amber-400 bg-slate-950 p-2.5 rounded border border-slate-800">العطل الموصوف: ${dev.notes}</p>
+                            </div>
+                            <div class="flex flex-col gap-2 w-full md:w-auto">
+                                <div class="flex gap-1">
+                                    <input type="number" id="price_${dev.id}" placeholder="السعر ₪" class="p-2 bg-slate-800 text-center text-xs text-white rounded-lg border border-slate-700 focus:outline-none w-24">
+                                    <button onclick="respondOrder('${dev.id}', true)" class="bg-teal-500 text-slate-950 font-bold text-xs px-3 py-2 rounded-lg hover:bg-teal-400 cursor-pointer">موافق، نقدر</button>
+                                </div>
+                                <button onclick="respondOrder('${dev.id}', false)" class="text-xs font-semibold bg-rose-600/20 text-rose-400 border border-rose-500/20 py-2 rounded-lg hover:bg-rose-600 hover:text-white cursor-pointer">نعتذر، لا يمكن حالياً</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const statusClass = dev.status === 'تم التسليم' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 
+                                        dev.status === 'جاهز' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
+                                        'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                    const paidClass = dev.is_paid ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+                    
+                    list.innerHTML += `
+                        <div class="border border-slate-800 p-4 rounded-xl bg-slate-900/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h4 class="font-bold text-base text-white">${dev.phone_model} <span class="text-[10px] ${dev.issue_type === 'سوفتوير' ? 'text-blue-400' : 'text-purple-400'} px-2 py-0.5 rounded bg-slate-950 mr-2 border border-slate-800">${dev.issue_type}</span></h4>
+                                <p class="text-xs text-slate-300 mt-1">العميل: ${dev.customer_name} | السعر: <span class="text-teal-400 font-bold">${dev.cost} ₪</span> ${dev.extra_cost > 0 ? `<span class="text-rose-400 text-[10px]">(سيرفر: ${dev.extra_cost})</span>` : ''}</p>
+                                <p class="text-xs text-slate-400 bg-slate-950/40 p-2 rounded mt-1">الوصف: ${dev.notes || 'لا يوجد'}</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 items-center justify-end w-full md:w-auto">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${statusClass}">${dev.status}</span>
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${paidClass}">${dev.is_paid ? '💰 مقبوض' : '❌ لم يقبض'}</span>
+                                <div class="flex gap-1 w-full md:w-auto justify-end mt-1">
+                                    ${dev.status === 'قيد الانتظار' ? `<button onclick="updateDevice('${dev.id}', {status: 'جاهز'})" class="text-[11px] bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-500 cursor-pointer">جاهز</button>` : ''}
+                                    ${dev.status === 'جاهز' ? `<button onclick="updateDevice('${dev.id}', {status: 'تم التسليم'})" class="text-[11px] bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-500 cursor-pointer">تسليم</button>` : ''}
+                                    ${!dev.is_paid ? `<button onclick="updateDevice('${dev.id}', {is_paid: true})" class="text-[11px] bg-teal-400 text-slate-950 font-bold px-2 py-1 rounded hover:bg-teal-300 cursor-pointer">قبض</button>` : ''}
+                                    <button onclick="deleteDevice('${dev.id}')" class="text-[11px] bg-rose-600/20 text-rose-400 px-2 py-1 rounded hover:bg-rose-600 hover:text-white cursor-pointer">حذف</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function filterClientOrders() {
+            const searchName = document.getElementById('clientSearchName').value.toLowerCase();
+            const list = document.getElementById('clientOrdersList');
+            list.innerHTML = '';
+
+            const orders = allDevices.filter(dev => dev.status === 'طلب معلق' || dev.reply_message !== '');
+            const filtered = orders.filter(dev => dev.customer_name.toLowerCase().includes(searchName));
+
+            if(filtered.length === 0) {
+                list.innerHTML = '<p class="text-slate-600 text-center text-xs py-4">اكتب اسمك لمتابعة حالة جهازك والردود الفورية عليه.</p>';
+                return;
+            }
+
+            filtered.forEach(dev => {
+                let text = '⏳ جاري فحص العطل والبوكسات المدعومة من قبل المبرمج بالمحل...';
+                let style = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                
+                if(dev.reply_message.includes('نعتذر')) {
+                    text = `❌ اعتذار: ${dev.reply_message}`;
+                    style = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+                } else if(dev.reply_message !== '') {
+                    text = `✅ تم الفحص بنجاح: ${dev.reply_message} | السعر المتوقع: [ ${dev.cost} شيكل ] تفضل بزيارة المحل لتسليم الجهاز وبدء الصيانة فوراً!`;
+                    style = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                }
+
+                list.innerHTML += `
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-md">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-white text-base">${dev.phone_model}</h4>
+                            <span class="text-[10px] text-slate-500">طه فون أونلاين</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-2">الاسم المسجل: ${dev.customer_name}</p>
+                        <div class="p-3 rounded-lg text-xs font-medium leading-relaxed ${style}">${text}</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function respondOrder(id, accept) {
+            let payload = {};
+            if(accept) {
+                const p = document.getElementById(`price_${id}`).value;
+                if(!p) { alert("الرجاء تحديد سعر الإصلاح المتوقع للزبون!"); return; }
+                payload = { status: 'قيد الانتظار', cost: p, reply_message: 'موافق، العطل مدعوم وجاهزون للعمل عليه بأحدث بوكسات السوفتوير!' };
+            } else {
+                payload = { status: 'مرفوض', reply_message: 'نعتذر منك بشدة، هذا العطل غير مدعوم على السيرفرات أو البوكسات المتوفرة بالمحل حالياً.' };
+            }
+            await fetch(`/api/devices/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            loadDevices();
+        }
+
+        // إرسال النماذج والتحكم
+        document.getElementById('clientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('clientName').value;
+            await fetch('/api/devices', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_name: name,
+                    phone_model: document.getElementById('clientPhone').value,
+                    notes: document.getElementById('clientNotes').value,
+                    is_client_order: true
+                })
+            });
+            document.getElementById('clientSearchName').value = name;
+            document.getElementById('clientForm').reset();
+            loadDevices();
+            alert("🚀 تم إرسال طلبك لمهندس طه فون بنجاح! سيتم الفحص والرد خلال دقائق بالأسفل.");
+        });
+
+        document.getElementById('deviceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/devices', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_name: document.getElementById('customerName').value,
+                    phone_model: document.getElementById('phoneModel').value,
+                    issue_type: document.getElementById('issueType').value,
+                    cost: document.getElementById('cost').value,
+                    extra_cost: document.getElementById('extraCost').value || 0,
+                    notes: document.getElementById('notes').value
+                })
+            });
+            document.getElementById('deviceForm').reset();
+            loadDevices();
+        });
+
+        async function updateDevice(id, fields) {
+            await fetch(`/api/devices/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fields) });
+            loadDevices();
+        }
+
+        async function deleteDevice(id) {
+            if(confirm("هل تريد حذف هذا الجهاز نهائياً من سجل طه فون؟")) {
+                await fetch(`/api/devices/${id}`, { method: 'DELETE' });
+                loadDevices();
+            }
+        }
+
+        function searchDevices() {
+            const q = document.getElementById('searchBox').value.toLowerCase();
+            const f = allDevices.filter(d => d.customer_name.toLowerCase().includes(q) || d.phone_model.toLowerCase().includes(q) || d.notes.toLowerCase().includes(q));
+            renderShopDevices(f);
+        }
+
+        loadDevices();
+    </script>
+</body>
+</html>
