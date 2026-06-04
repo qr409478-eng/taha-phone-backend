@@ -5,9 +5,9 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000; 
 
-// تم تحديث الروابط والمفاتيح الجديدة باحترافية وبشكل صحيح 🚀
+// الربط الجديد والنظيف بالسحاب 🚀
 const SUPABASE_URL = 'https://buxnqmmbecgtnckygudx.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_j6LI8T5izgXzJawJ_xzvwg_9VnoSE18';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eG5xbW1iZWNndG5ja3lndWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA3MjUsImV4cCI6MjA5NjA2NjcyNX0.jqlt5oguM2O9Bh-6rdb61XrqkoOKss8qxUGu-ZixcL0';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -165,5 +165,5 @@ app.delete('/api/devices/:id', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 سيرفر طه فون السحابي يعمل بنجاح على المنفذ ${PORT}`);
+    console.log(`🚀 سيرفر طه فون يعمل بنجاح على المنفذ ${PORT}`);
 });
