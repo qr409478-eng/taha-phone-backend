@@ -1,16 +1,17 @@
 const express = require('express');
 const path = require('path');
-const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000; 
 
+// ربط السحاب المستقر والمفتاح العام النظيف 🚀
 const SUPABASE_URL = 'https://buxnqmmbecgtnckygudx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eG5xbW1iZWNndG5ja3lndWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA3MjUsImV4cCI6MjA5NjA2NjcyNX0.jqlt5oguM2O9Bh-6rdb61XrqkoOKss8qxUGu-ZixcL0';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// دالة الاتصال المباشر بالسحاب باستخدام الـ fetch المدمج بالنظام
 async function supabaseRequest(endpoint, method = 'GET', body = null) {
     try {
         const options = {
@@ -23,6 +24,8 @@ async function supabaseRequest(endpoint, method = 'GET', body = null) {
             }
         };
         if (body) options.body = JSON.stringify(body);
+        
+        // استخدام fetch المدمج في Node.js لحل مشكلة الانهيار على ريندر
         const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
         if (!res.ok) {
             const errText = await res.text();
@@ -146,7 +149,7 @@ app.delete('/api/devices/:id', async (req, res) => {
     }
 });
 
-// --- التحديث الجديد: الـ APIs الخاصة بخدمات الآيكلود والسيرفر ---
+// --- خدمات الآيكلود والسيرفر ---
 app.get('/api/icloud-services', async (req, res) => {
     try {
         const services = await supabaseRequest('icloud_services?select=*') || [];
@@ -168,5 +171,5 @@ app.put('/api/icloud-services/:id', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 سيرفر طه فون مدمج بخدمات الآيكلود يعمل على المنفذ ${PORT}`);
+    console.log(`🚀 سيرفر طه فون مستقر ومدمج بالكامل يعمل على المنفذ ${PORT}`);
 });
