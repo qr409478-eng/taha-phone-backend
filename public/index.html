@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طه فون | Taha Phone - المنصة الذكية لصيانة الهواتف</title>
+    <title>طه فون | Taha Phone - المنصة الذكية لصيانة الهواتف والآيكلود</title>
     <script src="https://cdn.tailwindcss.com\"></script>
     <style>
-        .neon-border { box-shadow: 0 0 15px rgba(20, 184, 166, 0.5); }
+        .neon-border { box-shadow: 0 0 15px rgba(20, 184, 166, 0.4); }
         .neon-text { text-shadow: 0 0 10px rgba(20, 184, 166, 0.6); }
-        .neon-card-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
-        .neon-card-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        .neon-card-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.25); }
+        .neon-card-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-teal-500 selection:text-slate-950">
 
     <div class="max-w-4xl mx-auto p-4">
         
-        <header class="text-center my-8">
+        <header class="text-center my-6">
             <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400 neon-text tracking-wide mb-2">طـه فـون</h1>
-            <p class="text-xs text-slate-400 tracking-widest uppercase">المنصة الذكية لإدارة صيانة الهواتف والحسابات</p>
+            <p class="text-xs text-slate-400 tracking-widest uppercase">المنصة الشاملة لإدارة الصيانة ومتابعة سيرفرات iCloud</p>
         </header>
 
         <div id="loginSection" class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl max-w-sm mx-auto text-center neon-border backdrop-blur-md">
@@ -30,61 +30,74 @@
 
         <div id="shopSection" class="hidden space-y-6">
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
-                    <p class="text-xs text-slate-400 mb-1">أرباح السوفتوير (الأسبوع)</p>
-                    <p id="statSoftware" class="text-2xl font-black text-teal-400">0</p>
+            <div class="flex gap-4 border-b border-slate-800 pb-2">
+                <button id="tabDevicesBtn" onclick="switchTab('devices')" class="text-base font-bold pb-2 border-b-2 border-teal-500 text-teal-400 px-4 transition-all">🛠️ صيانة الأجهزة والمالية</button>
+                <button id="tabIcloudBtn" onclick="switchTab('icloud')" class="text-base font-bold pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 px-4 transition-all">☁️ دليل خدمات السيرفر و iCloud</button>
+            </div>
+
+            <div id="tabDevices" class="space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center">
+                        <p class="text-xs text-slate-400 mb-1">أرباح السوفتوير (الأسبوع)</p>
+                        <p id="statSoftware" class="text-xl font-black text-teal-400">0</p>
+                    </div>
+                    <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center">
+                        <p class="text-xs text-slate-400 mb-1">صافي حصتي (50%)</p>
+                        <p id="statMyShare" class="text-xl font-black text-emerald-400">0</p>
+                    </div>
+                    <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center neon-card-blue">
+                        <p class="text-xs text-slate-400 mb-1">المتبقي لي الحين</p>
+                        <p id="statRemaining" class="text-xl font-black text-blue-400">0</p>
+                    </div>
+                    <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center">
+                        <p class="text-xs text-slate-400 mb-1">إجمالي الهاردوير</p>
+                        <p id="statHardware" class="text-xl font-black text-amber-400">0</p>
+                    </div>
                 </div>
-                <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
-                    <p class="text-xs text-slate-400 mb-1">صافي حصتي (50%)</p>
-                    <p id="statMyShare" class="text-2xl font-black text-emerald-400">0</p>
+
+                <div class="bg-slate-900/40 border border-slate-800/60 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-right">
+                        <p class="text-xs text-slate-400">إجمالي مسحوباتك المادية السابقة</p>
+                        <p class="text-sm font-bold text-slate-200">المسحوب فعلياً: <span id="statWithdrawn" class="text-red-400 font-mono">0</span> شيكل</p>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <input type="number" id="withdrawAmount" placeholder="المبلغ..." class="bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-center text-red-400 font-mono w-28 focus:outline-none focus:border-red-500">
+                        <button onclick="submitWithdraw()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold px-4 py-2 rounded-xl transition-all">تسجيل سحب</button>
+                    </div>
                 </div>
-                <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center backdrop-blur-sm neon-card-blue">
-                    <p class="text-xs text-slate-400 mb-1">المتبقي لي الحين</p>
-                    <p id="statRemaining" class="text-2xl font-black text-blue-400">0</p>
+
+                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+                    <h3 class="text-lg font-bold mb-4 text-teal-400">✨ إضافة جهاز صيانة جديد</h3>
+                    <form id="deviceForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="customerName" placeholder="اسم الزبون..." required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm">
+                        <input type="text" id="phoneModel" placeholder="موديل الجهاز (Poco, iPhone...)..." required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm">
+                        <select id="issueType" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm text-slate-300">
+                            <option value="سوفتوير">سوفتوير (تخضع للحسبة 50%)</option>
+                            <option value="هاردوير">هاردوير (خارج الحسبة الأسبوعية)</option>
+                            <option value="شاشة">شاشة / قطع غيار</option>
+                        </select>
+                        <input type="number" id="cost" placeholder="التكلفة للزبون..." required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm font-mono">
+                        <input type="number" id="extraCost" placeholder="تكلفة قطع الغيار الخارجية..." class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm font-mono">
+                        <input type="text" id="notes" placeholder="ملاحظات العطل..." class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm">
+                        <button type="submit" class="md:col-span-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 rounded-xl transition-all">حفظ وتثبيت الجهاز أونلاين</button>
+                    </form>
                 </div>
-                <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl text-center backdrop-blur-sm">
-                    <p class="text-xs text-slate-400 mb-1">إجمالي الهاردوير</p>
-                    <p id="statHardware" class="text-2xl font-black text-amber-400">0</p>
+
+                <div class="space-y-4">
+                    <input type="text" id="searchBox" oninput="searchDevices()" placeholder="بحث باسم الزبون أو الموديل..." class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-teal-500 w-full">
+                    <div id="devicesContainer" class="space-y-3"></div>
                 </div>
             </div>
 
-            <div class="bg-slate-900/40 border border-slate-800/60 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 backdrop-blur-sm">
-                <div class="text-right">
-                    <p class="text-xs text-slate-400">إجمالي مسحوباتك المادية السابقة</p>
-                    <p class="text-sm font-bold text-slate-200">المسحوب فعلياً: <span id="statWithdrawn" class="text-red-400 font-mono">0</span> شيكل</p>
-                </div>
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <input type="number" id="withdrawAmount" placeholder="المبلغ..." class="bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-center text-red-400 font-mono w-28 focus:outline-none focus:border-red-500">
-                    <button onclick="submitWithdraw()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold px-4 py-2 rounded-xl transition-all">تسجيل سحب مال</button>
-                </div>
-            </div>
-
-            <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-                <h3 class="text-lg font-bold mb-4 text-teal-400 flex items-center gap-2">✨ إضافة جهاز صيانة جديد</h3>
-                <form id="deviceForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="customerName" placeholder="اسم الزبون..." required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm">
-                    <input type="text" id="phoneModel" placeholder="موديل الجهاز (مثال: Poco X3)..." required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm">
-                    <select id="issueType" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm text-slate-300">
-                        <option value="سوفتوير">سوفتوير (تخضع للحسبة 50%)</option>
-                        <option value="هاردوير">هاردوير (خارج الحسبة الأسبوعية)</option>
-                        <option value="شاشة">شاشة / قطع غيار</option>
-                        <option value="شاحن">شاحن / إكسسوار</option>
-                    </select>
-                    <input type="number" id="cost" placeholder="التكلفة الإجمالية للزبون..." required class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm font-mono">
-                    <input type="number" id="extraCost" placeholder="تكلفة قطع الغيار الخارجية (إن وجدت)..." class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm font-mono">
-                    <input type="text" id="notes" placeholder="ملاحظات العطل والعملية..." class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-500 text-sm md:col-span-1">
-                    <button type="submit" class="md:col-span-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 rounded-xl transition-all shadow-md">حفظ وثبيت الجهاز في السحاب أونلاين</button>
-                </form>
-            </div>
-
-            <div class="space-y-4">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <h3 class="text-xl font-bold text-slate-200">سجل الأجهزة والعمليات</h3>
-                    <input type="text" id="searchBox" oninput="searchDevices()" placeholder="بحث باسم الزبون أو الموديل..." class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-teal-500 w-full sm:w-64">
+            <div id="tabIcloud" class="hidden space-y-6">
+                <div class="bg-gradient-to-r from-teal-950/40 to-slate-900/60 border border-teal-500/20 p-5 rounded-2xl">
+                    <h3 class="text-xl font-bold text-teal-400 mb-2">🔥 الموسوعة الحية لفك الحسابات الرسمية</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        بدون ما تقضي وقت تسأل وتنتظر الإجابة؛ هذا الدليل المباشر يعرض لك ثمن الأجهزة المدعومة، الوقت اللازم للتنفيذ، وحالة السيرفر الحالية المحدثة من الفني مباشرة لتوفير تعبك ووقت زبائنك.
+                    </p>
                 </div>
 
-                <div id="devicesContainer" class="space-y-3">
+                <div id="icloudServicesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     </div>
             </div>
 
@@ -93,11 +106,12 @@
 
     <script>
         let allDevices = [];
+        let icloudServices = [];
         const isLoggedIn = localStorage.getItem('taha_auth') === 'true';
 
         function checkLogin() {
             const pass = document.getElementById('passwordInput').value;
-            if (pass === '720') { // كلمة مرور مخصصة للفني
+            if (pass === '720') {
                 localStorage.setItem('taha_auth', 'true');
                 switchView('shop');
             } else {
@@ -110,6 +124,21 @@
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('shopSection').classList.remove('hidden');
                 loadDevices();
+                loadIcloudServices();
+            }
+        }
+
+        function switchTab(tab) {
+            if (tab === 'devices') {
+                document.getElementById('tabDevices').classList.remove('hidden');
+                document.getElementById('tabIcloud').classList.add('hidden');
+                document.getElementById('tabDevicesBtn').className = "text-base font-bold pb-2 border-b-2 border-teal-500 text-teal-400 px-4 transition-all";
+                document.getElementById('tabIcloudBtn').className = "text-base font-bold pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 px-4 transition-all";
+            } else {
+                document.getElementById('tabDevices').classList.add('hidden');
+                document.getElementById('tabIcloud').classList.remove('hidden');
+                document.getElementById('tabDevicesBtn').className = "text-base font-bold pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 px-4 transition-all";
+                document.getElementById('tabIcloudBtn').className = "text-base font-bold pb-2 border-b-2 border-teal-500 text-teal-400 px-4 transition-all";
             }
         }
 
@@ -120,9 +149,15 @@
                 allDevices = data.devices || [];
                 renderStats(data.stats);
                 renderShopDevices(allDevices);
-            } catch (err) {
-                console.error("Error loading devices:", err);
-            }
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadIcloudServices() {
+            try {
+                const res = await fetch('/api/icloud-services');
+                icloudServices = await res.json() || [];
+                renderIcloudServices(icloudServices);
+            } catch (err) { console.error(err); }
         }
 
         function renderStats(stats) {
@@ -137,39 +172,94 @@
         function renderShopDevices(devices) {
             const container = document.getElementById('devicesContainer');
             container.innerHTML = '';
-
             if (devices.length === 0) {
                 container.innerHTML = `<div class="text-center p-8 bg-slate-900/20 border border-slate-800 rounded-2xl text-slate-500 text-sm">لا توجد أجهزة مسجلة حالياً</div>`;
                 return;
             }
-
             devices.forEach(dev => {
-                const net = dev.cost - dev.extra_cost;
                 const card = document.createElement('div');
-                card.className = `bg-slate-900/50 border ${dev.is_paid ? 'border-slate-800/80' : 'border-teal-500/30 neon-card-green'} p-4 rounded-2xl space-y-3 transition-all`;
-                
+                card.className = `bg-slate-900/50 border ${dev.is_paid ? 'border-slate-800/80' : 'border-teal-500/30 neon-card-green'} p-4 rounded-2xl space-y-3`;
                 card.innerHTML = `
                     <div class="flex justify-between items-start flex-wrap gap-2">
                         <div>
                             <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">${dev.date_string || ''}</span>
-                            <h4 class="text-base font-bold mt-1 text-slate-100">${dev.customer_name} <span class="text-teal-400 font-medium text-sm">(${dev.phone_model})</span></h4>
+                            <h4 class="text-base font-bold mt-1 text-slate-100">${dev.customer_name} <span class="text-teal-400 text-sm">(${dev.phone_model})</span></h4>
                             <p class="text-xs text-slate-400 mt-0.5">العطل: ${dev.issue_type} | <span class="text-slate-300">${dev.notes || 'لا ملاحظات'}</span></p>
                         </div>
                         <div class="text-left">
                             <p class="text-sm font-black text-teal-400 font-mono">${dev.cost} ₪</p>
                             ${dev.extra_cost > 0 ? `<p class="text-[10px] text-red-400 font-mono">القطع: -${dev.extra_cost} ₪</p>` : ''}
-                            <span class="inline-block text-[10px] mt-1 px-2 py-0.5 rounded-full font-bold ${dev.is_paid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
-                                ${dev.is_paid ? '🟢 تم الدفع والحساب' : '🟡 قيد الانتظار / لم يحسب'}
-                            </span>
+                            <span class="inline-block text-[10px] mt-1 px-2 py-0.5 rounded-full font-bold ${dev.is_paid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">${dev.is_paid ? '🟢 تم الدفع والحساب' : '🟡 قيد الانتظار'}</span>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-2 border-t border-slate-800/60 pt-3">
-                        ${!dev.is_paid ? `<button onclick="updateDevice('${dev.id}', {is_paid: true})" class="text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1.5 rounded-xl transition-all">💰 تم قبض الحساب</button>` : ''}
-                        <button onclick="deleteDevice('${dev.id}')" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-xl transition-all">حذف</button>
+                    <div class="flex justify-end gap-2 border-t border-slate-800/60 pt-2">
+                        ${!dev.is_paid ? `<button onclick="updateDevice('${dev.id}', {is_paid: true})" class="text-xs bg-emerald-500 text-slate-950 font-bold px-3 py-1.5 rounded-xl">💰 تم القبض</button>` : ''}
+                        <button onclick="deleteDevice('${dev.id}')" class="text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-xl">حذف</button>
                     </div>
                 `;
                 container.appendChild(card);
             });
+        }
+
+        // رندر وعرض كروت الآيكلود + تمكين الإدارة المباشرة للفني لتعديل البيانات
+        function renderIcloudServices(services) {
+            const container = document.getElementById('icloudServicesContainer');
+            container.innerHTML = '';
+
+            services.forEach(srv => {
+                let statusColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+                if(srv.status === 'صيانة') statusColor = "bg-red-500/10 text-red-400 border-red-500/30";
+                if(srv.status === 'بطيئة') statusColor = "bg-amber-500/10 text-amber-400 border-amber-500/30";
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/40 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between space-y-4 backdrop-blur-sm";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-base font-bold text-slate-100">${srv.service_name}</h4>
+                            <span id="badge-${srv.id}" class="px-2 py-0.5 text-xs font-bold rounded-full border ${statusColor}">${srv.status}</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-3">⚠️ الشروط: ${srv.conditions || 'لا توجد قيود مخصصة'}</p>
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs bg-slate-950 p-2 rounded-xl border border-slate-800/60">
+                            <div>
+                                <p class="text-slate-500 text-[10px]">الوقت المتوقع</p>
+                                <p id="time-text-${srv.id}" class="font-bold text-slate-300 font-mono">${srv.expected_time}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-500 text-[10px]">التكلفة التقريبية</p>
+                                <p id="cost-text-${srv.id}" class="font-bold text-teal-400 font-mono">${srv.cost_ils} ₪</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-slate-800/80 pt-3 grid grid-cols-3 gap-1">
+                        <input type="number" id="input-cost-${srv.id}" value="${srv.cost_ils}" placeholder="السعر" class="bg-slate-950 border border-slate-800 rounded-lg text-center font-mono text-xs p-1 text-teal-400 focus:outline-none">
+                        <select id="select-status-${srv.id}" class="bg-slate-950 border border-slate-800 rounded-lg text-center text-xs p-1 text-slate-300 focus:outline-none">
+                            <option value="شغالة" ${srv.status === 'شغالة'?'selected':''}>شغالة</option>
+                            <option value="بطيئة" ${srv.status === 'بطيئة'?'selected':''}>بطيئة</option>
+                            <option value="صيانة" ${srv.status === 'صيانة'?'selected':''}>صيانة</option>
+                        </select>
+                        <button onclick="updateIcloudService('${srv.id}')" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-[11px] rounded-lg p-1 transition-all">تحديث السعر</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function updateIcloudService(id) {
+            const newCost = document.getElementById(`input-cost-${id}`).value;
+            const newStatus = document.getElementById(`select-status-${id}`).value;
+            const currentFiltered = icloudServices.find(s => s.id == id);
+            
+            let timeEst = currentFiltered ? currentFiltered.expected_time : "1-3 أيام";
+            if(newStatus === 'صيانة') timeEst = "موقوف مؤقتاً";
+
+            await fetch(`/api/icloud-services/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus, cost_ils: newCost, expected_time: timeEst })
+            });
+            loadIcloudServices();
         }
 
         document.getElementById('deviceForm').addEventListener('submit', async (e) => {
@@ -200,7 +290,7 @@
         }
 
         async function deleteDevice(id) {
-            if(confirm("هل تريد حذف هذا الجهاز نهائياً من السحاب؟")) {
+            if(confirm("هل تريد الحذف؟")) {
                 await fetch(`/api/devices/${id}`, { method: 'DELETE' });
                 loadDevices();
             }
@@ -220,7 +310,7 @@
 
         function searchDevices() {
             const q = document.getElementById('searchBox').value.toLowerCase();
-            const f = allDevices.filter(d => d.customer_name.toLowerCase().includes(q) || d.phone_model.toLowerCase().includes(q) || (d.notes && d.notes.toLowerCase().includes(q)));
+            const f = allDevices.filter(d => d.customer_name.toLowerCase().includes(q) || d.phone_model.toLowerCase().includes(q));
             renderShopDevices(f);
         }
 
@@ -228,9 +318,7 @@
             if(e.key === 'Enter') checkLogin();
         });
 
-        if (isLoggedIn) {
-            switchView('shop');
-        }
+        if (isLoggedIn) switchView('shop');
     </script>
 </body>
 </html>
