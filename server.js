@@ -5,14 +5,12 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000; 
 
-// الربط الجديد والنظيف بالسحاب 🚀
 const SUPABASE_URL = 'https://buxnqmmbecgtnckygudx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eG5xbW1iZWNndG5ja3lndWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA3MjUsImV4cCI6MjA5NjA2NjcyNX0.jqlt5oguM2O9Bh-6rdb61XrqkoOKss8qxUGu-ZixcL0';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// دالة مساعدة معالجة ومستقرة للاتصال بـ Supabase
 async function supabaseRequest(endpoint, method = 'GET', body = null) {
     try {
         const options = {
@@ -38,18 +36,16 @@ async function supabaseRequest(endpoint, method = 'GET', body = null) {
     }
 }
 
-// جلب البيانات والحسابات الأسبوعية من السحاب
+// --- خدمات صيانة الأجهزة والحسابات المالية ---
 app.get('/api/devices', async (req, res) => {
     try {
         const devices = await supabaseRequest('devices?select=*') || [];
         const config = await supabaseRequest('shop_config?id=eq.1&select=*') || [];
-        
         const withdrawn = (config && config[0]) ? parseFloat(config[0].technician_withdrawn) || 0 : 0;
 
         let totalSoftwareIncome = 0;
         let totalHardwareIncome = 0;
         let pendingNextWeek = 0; 
-
         const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
 
         if (Array.isArray(devices)) {
@@ -76,7 +72,6 @@ app.get('/api/devices', async (req, res) => {
         }
 
         const myShareTotal = totalSoftwareIncome * 0.5;
-        const myRemaining = myShareTotal - withdrawn;
         const sortedDevices = Array.isArray(devices) ? [...devices].sort((a, b) => b.id - a.id) : [];
 
         res.json({
@@ -86,7 +81,7 @@ app.get('/api/devices', async (req, res) => {
                 myShareWeek: myShareTotal,
                 shopShareWeek: totalSoftwareIncome * 0.5,
                 technicianWithdrawn: withdrawn,
-                myRemaining: myRemaining,
+                myRemaining: myShareTotal - withdrawn,
                 pendingNextWeek: pendingNextWeek,
                 totalHardware: totalHardwareIncome
             }
@@ -96,7 +91,6 @@ app.get('/api/devices', async (req, res) => {
     }
 });
 
-// تسجيل دفعة مسحوبة في السحاب
 app.post('/api/withdraw', async (req, res) => {
     try {
         const { amount } = req.body;
@@ -111,25 +105,16 @@ app.post('/api/withdraw', async (req, res) => {
     }
 });
 
-// تسجيل جهاز جديد في السحاب
 app.post('/api/devices', async (req, res) => {
     try {
         const { customer_name, phone_model, issue_type, notes, cost, extra_cost, is_client_order } = req.body;
-        
         const newDevice = {
             id: Date.now(), 
             date_string: new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-            customer_name,
-            phone_model,
-            issue_type: issue_type || 'سوفتوير',
-            notes,
-            cost: parseFloat(cost) || 0,
-            extra_cost: parseFloat(extra_cost) || 0,
-            status: is_client_order ? 'طلب معلق' : 'قيد الانتظار', 
-            is_paid: false,
-            reply_message: ''
+            customer_name, phone_model, issue_type: issue_type || 'سوفتوير', notes,
+            cost: parseFloat(cost) || 0, extra_cost: parseFloat(extra_cost) || 0,
+            status: is_client_order ? 'طلب معلق' : 'قيد الانتظار', is_paid: false, reply_message: ''
         };
-        
         await supabaseRequest('devices', 'POST', newDevice);
         res.json({ message: "تم الحفظ أونلاين بنجاح", id: newDevice.id });
     } catch (err) {
@@ -137,33 +122,51 @@ app.post('/api/devices', async (req, res) => {
     }
 });
 
-// تعديل حقول أي جهاز في السحاب
 app.put('/api/devices/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const updateFields = req.body;
-        
         if (updateFields.cost !== undefined) updateFields.cost = parseFloat(updateFields.cost) || 0;
         if (updateFields.extra_cost !== undefined) updateFields.extra_cost = parseFloat(updateFields.extra_cost) || 0;
 
         await supabaseRequest(`devices?id=eq.${id}`, 'PATCH', updateFields);
-        res.json({ message: "تم التعديل على السحاب بنجاح" });
+        res.json({ message: "تم التعديل بنجاح" });
     } catch (err) {
         res.status(500).json({ error: "خطأ في تحديث البيانات" });
     }
 });
 
-// حذف جهاز نهائياً من السحاب
 app.delete('/api/devices/:id', async (req, res) => {
     try {
         const { id } = req.params;
         await supabaseRequest(`devices?id=eq.${id}`, 'DELETE');
-        res.json({ message: "تم الحذف من السحاب بنجاح" });
+        res.json({ message: "تم الحذف بنجاح" });
     } catch (err) {
         res.status(500).json({ error: "خطأ في الحذف" });
     }
 });
 
+// --- التحديث الجديد: الـ APIs الخاصة بخدمات الآيكلود والسيرفر ---
+app.get('/api/icloud-services', async (req, res) => {
+    try {
+        const services = await supabaseRequest('icloud_services?select=*') || [];
+        res.json(services);
+    } catch (err) {
+        res.status(500).json({ error: "خطأ في جلب خدمات الآيكلود" });
+    }
+});
+
+app.put('/api/icloud-services/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, cost_ils, expected_time } = req.body;
+        await supabaseRequest(`icloud_services?id=eq.${id}`, 'PATCH', { status, cost_ils: parseFloat(cost_ils), expected_time });
+        res.json({ message: "تم تحديث خدمة الآيكلود بالسحاب" });
+    } catch (err) {
+        res.status(500).json({ error: "خطأ في تحديث خدمة الآيكلود" });
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 سيرفر طه فون يعمل بنجاح على المنفذ ${PORT}`);
+    console.log(`🚀 سيرفر طه فون مدمج بخدمات الآيكلود يعمل على المنفذ ${PORT}`);
 });
