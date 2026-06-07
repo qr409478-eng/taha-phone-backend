@@ -258,8 +258,27 @@
 
         document.getElementById('deviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await fetch('/api/devices', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ customer_name: document.getElementById('customerName').value, phone_model: document.getElementById('phoneModel').value, issue_type: document.getElementById('issueType').value, cost: document.getElementById('cost').value, extra_cost: document.getElementById('extraCost').value || 0, notes: document.getElementById('notes').value }) });
-            document.getElementById('deviceForm').reset(); loadDevicesData();
+            
+            // تحويل مسمى الواجهة إلى المسمى المالي المفهوم برمجياً بالسيرفر لتفادي مشكلة الصافي
+            let rawType = document.getElementById('issueType').value;
+            let backendType = rawType;
+            if (rawType === "البرمجة") backendType = "سوفتوير";
+            else if (rawType === "الصيانة (30%)") backendType = "صيانة شريك";
+
+            await fetch('/api/devices', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ 
+                    customer_name: document.getElementById('customerName').value, 
+                    phone_model: document.getElementById('phoneModel').value, 
+                    issue_type: backendType, 
+                    cost: document.getElementById('cost').value, 
+                    extra_cost: document.getElementById('extraCost').value || 0, 
+                    notes: document.getElementById('notes').value 
+                }) 
+            });
+            document.getElementById('deviceForm').reset(); 
+            loadDevicesData();
         });
 
         // --- إدارة الديون التي لنا (shop_debts) ---
