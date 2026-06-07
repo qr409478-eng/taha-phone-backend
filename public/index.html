@@ -133,7 +133,7 @@
 
         <div id="clientSection" class="bg-slate-900/40 border border-slate-800 p-5 rounded-2xl hidden space-y-6 backdrop-blur-sm">
             <div class="bg-slate-950/80 p-4 rounded-xl border border-blue-500/20 space-y-3">
-                <h4 class="text-xs font-bold text-blue-400 flex items-center gap-1">➕ هل لديك جهاز يحتاج صيانة أو فك؟ أرسل طلبك الحين:</h4>
+                <h4 class="text-xs font-bold text-blue-400 flex items-center gap-1">➕ أرسل طلب صيانة جديد:</h4>
                 <form id="clientOrderForm" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <input type="text" id="clName" placeholder="اكتب اسمك الثلاثي بالكامل..." required class="bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200">
                     <input type="text" id="clModel" placeholder="موديل هاتفك..." required class="bg-slate-900 border border-slate-800 rounded-lg p-2">
@@ -143,12 +143,12 @@
             </div>
 
             <div class="text-center space-y-1 border-t border-slate-800/60 pt-4">
-                <h3 class="text-sm font-bold text-blue-400">🔍 تتبع حالة جهازك ورد الفني بالسعر والمدة</h3>
+                <h3 class="text-sm font-bold text-blue-400">🔍 تتبع حالة جهازك</h3>
                 <p class="text-[11px] text-slate-400">أدخل اسمك الثلاثي كما كتبته لمشاهدة ردود طه فون الرسمية</p>
             </div>
             
             <div class="flex gap-2">
-                <input type="text" id="clientSearchInput" placeholder="اكتب اسمك الثلاثي هنا للبحث وفحص الرد..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-center focus:outline-none focus:border-blue-500">
+                <input type="text" id="clientSearchInput" placeholder="اكتب اسمك الثلاثي هنا..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-center focus:outline-none focus:border-blue-500">
                 <button onclick="clientSearch()" class="bg-blue-600 hover:bg-blue-500 text-slate-100 font-bold px-5 rounded-xl text-xs transition-all">افحص الحين</button>
             </div>
 
@@ -189,7 +189,7 @@
             else { document.getElementById('secIcloud').classList.remove('hidden'); document.getElementById('t3').className = "text-blue-400 border-b-2 border-blue-500 font-bold pb-2 px-3"; }
         }
 
-        // --- دالة الحسبة الفورية والمحسنة برمجياً لإصلاح خلل السيرفر ---
+        // الحسبة البرمجية المحلية الصارمة لمنع تصفير الأرقام ومطابقة الخيارات 100%
         function recalculateStatsLocally() {
             let totalSoftware = 0;
             let myRemaining = 0;
@@ -198,32 +198,29 @@
             let totalHardware = 0;
 
             allDevices.forEach(d => {
-                // تجنب احتساب الأجهزة المعلقة أو المرفوضة
                 if (d.status === 'طلب معلق' || d.status === 'مرفوض') return;
 
                 let fullCost = parseFloat(d.cost) || 0;
                 let extCost = parseFloat(d.extra_cost) || 0;
                 
-                // الخصم الحقيقي الفوري للقطع الخارجية لمعرفة الصافي الصافي
                 let cleanNet = fullCost - extCost;
                 if(cleanNet < 0) cleanNet = 0;
 
                 totalExtra += extCost;
                 totalHardware += fullCost;
 
-                // فحص الحالات بشكل مرن (سواء قادمة بنص قديم أو جديد من قاعدة البيانات)
-                if (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة') {
+                // دعم شامل لكافة صيغ الكلمات المدخلة من الفورم أو من قاعدة البيانات
+                if (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة' || d.issue_type === 'البرمجة (حسبة 50%)') {
                     totalSoftware += (cleanNet * 0.5);
                     myRemaining += (cleanNet * 0.5);
                 } else if (d.issue_type === 'صيانة شريك' || d.issue_type === 'الصيانة (30%)') {
                     partnerShare += (cleanNet * 0.3);
                     myRemaining += (cleanNet * 0.7); 
                 } else {
-                    myRemaining += cleanNet; // إجمالي عام للمحل
+                    myRemaining += cleanNet;
                 }
             });
 
-            // عرض المخرجات بدقة رياضية متناهية بدون أخطاء دمج النصوص
             document.getElementById('statSoftware').innerText = totalSoftware.toFixed(0) + ' ₪';
             document.getElementById('statRemaining').innerText = myRemaining.toFixed(0) + ' ₪';
             document.getElementById('statPartner').innerText = partnerShare.toFixed(0) + ' ₪';
@@ -231,14 +228,11 @@
             document.getElementById('statHardware').innerText = totalHardware.toFixed(0) + ' ₪';
         }
 
-        // --- إدارة صيانة المحل والطلبات الواردة ---
         async function loadDevicesData() {
             try {
                 const res = await fetch('/api/devices'); 
                 const data = await res.json(); 
                 allDevices = data.devices || [];
-                
-                // تشغيل الحسبة المحلية فوراً لتجاوز أخطاء السيرفر في الجمع والتوزيع
                 recalculateStatsLocally();
             } catch(e) {
                 recalculateStatsLocally();
@@ -262,19 +256,19 @@
                             <input type="text" id="incReply-${d.id}" placeholder="الرد والمدة للزبون..." class="bg-slate-950 border border-slate-800 rounded p-1.5 text-slate-300">
                         </div>
                         <div class="flex gap-2 justify-end pt-1">
-                            <button onclick="replyToClientOrder('${d.id}', 'مرفوض')" class="bg-red-500/20 text-red-400 px-4 py-1.5 rounded-lg font-bold">❌ رفض وقطع الطلب</button>
-                            <button onclick="replyToClientOrder('${d.id}', 'قيد الانتظار')" class="bg-emerald-500 text-slate-950 px-5 py-1.5 rounded-lg font-black">✅ قبول وتعيين السعر والرد</button>
+                            <button onclick="replyToClientOrder('${d.id}', 'مرفوض')" class="bg-red-500/20 text-red-400 px-4 py-1.5 rounded-lg font-bold">❌ رفض الطلب</button>
+                            <button onclick="replyToClientOrder('${d.id}', 'قيد الانتظار')" class="bg-emerald-500 text-slate-950 px-5 py-1.5 rounded-lg font-black">✅ قبول وتعيين السعر</button>
                         </div>
                     `;
                     incomingContainer.appendChild(incCard);
                 } else {
                     const card = document.createElement('div');
-                    let issueLabel = (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة') ? 'برمجة 50%' : ((d.issue_type === 'صيانة شريك' || d.issue_type === 'الصيانة (30%)') ? 'صيانة 30%' : 'عام للمحل');
+                    let issueLabel = (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة' || d.issue_type === 'البرمجة (حسبة 50%)') ? 'برمجة 50%' : ((d.issue_type === 'صيانة شريك' || d.issue_type === 'الصيانة (30%)') ? 'صيانة 30%' : 'عام للمحل');
                     card.className = "bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs";
                     card.innerHTML = `
                         <div class="space-y-1">
                             <p class="font-bold text-slate-200"><input type="text" value="${d.customer_name}" onchange="updateDeviceFields('${d.id}', {customer_name: this.value})" class="bg-transparent focus:bg-slate-950 rounded px-1 text-teal-400"> (${d.phone_model})</p>
-                            <p class="text-slate-400 text-[11px]">نوع: <span class="text-purple-400">${issueLabel}</span> | قطعة خارجة: <span class="text-red-400 font-mono">${d.extra_cost || 0} ₪</span> | ملاحظة: <input type="text" value="${d.notes||''}" onchange="updateDeviceFields('${d.id}', {notes: this.value})" class="bg-transparent text-slate-300 focus:bg-slate-950 rounded px-1 w-44"></p>
+                            <p class="text-slate-400 text-[11px]">نوع: <span class="text-purple-400">${issueLabel}</span> | قطع: <span class="text-red-400 font-mono">${d.extra_cost || 0} ₪</span> | عطل: <input type="text" value="${d.notes||''}" onchange="updateDeviceFields('${d.id}', {notes: this.value})" class="bg-transparent text-slate-300 focus:bg-slate-950 rounded px-1 w-44"></p>
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="number" id="costInput-${d.id}" value="${d.cost}" class="w-14 bg-slate-950 border border-slate-800 text-center font-mono font-bold text-teal-400 p-1 rounded">
@@ -292,7 +286,7 @@
         async function saveDeviceCost(id) {
             const costVal = document.getElementById(`costInput-${id}`).value;
             await updateDeviceFields(id, { cost: costVal });
-            alert("تم حفظ وتثبيت السعر الجديد وتعديل الكروت بنجاح! 🚀");
+            alert("تم حفظ الحسبة وتحديث الكروت بنجاح! 🚀");
             loadDevicesData();
         }
 
@@ -308,12 +302,11 @@
             const issue_type = document.getElementById(`incType-${id}`) ? document.getElementById(`incType-${id}`).value : 'سوفتوير';
             const reply_message = document.getElementById(`incReply-${id}`) ? document.getElementById(`incReply-${id}`).value : '';
             await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ status: statusField, cost, issue_type, reply_message }) });
-            alert('تم الرد على طلب الزبون بنجاح!'); loadDevicesData();
+            alert('تم الرد وتحديث طلب الزبون!'); loadDevicesData();
         }
 
         document.getElementById('deviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const costInput = parseFloat(document.getElementById('cost').value) || 0;
             const extraCostInput = parseFloat(document.getElementById('extraCost').value) || 0;
             const chosenType = document.getElementById('issueType').value;
@@ -330,12 +323,11 @@
                     notes: document.getElementById('notes').value 
                 }) 
             });
-            
             document.getElementById('deviceForm').reset(); 
             loadDevicesData();
         });
 
-        // --- دفتر الديون (shop_debts) ---
+        // --- سجل الديون الصادر ووارد الشركات ---
         async function loadDebtsData() {
             const res = await fetch('/api/debts'); allDebts = await res.json() || []; let sum = 0;
             const container = document.getElementById('debtsContainer'); container.innerHTML = '';
@@ -363,12 +355,12 @@
         async function saveDebtAmount(id) {
             const amtVal = document.getElementById(`debtAmt-${id}`).value;
             await updateDebtFields(id, { amount: amtVal });
-            alert("تم حفظ وتثبيت قيمة الدين بنجاح! 💾");
+            alert("تم حفظ قيمة الدين بنجاح!");
             loadDebtsData();
         }
 
         async function updateDebtFields(id, fields) { await fetch(`/api/debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(fields) }); }
-        async function deleteDebt(id) { if(confirm("حذف سجل هذا الدين نهائياً من النظام؟")) { await fetch(`/api/debts/${id}`, { method: 'DELETE' }); loadDebtsData(); } }
+        async function deleteDebt(id) { if(confirm("حذف سجل هذا الدين نهائياً؟")) { await fetch(`/api/debts/${id}`, { method: 'DELETE' }); loadDebtsData(); } }
         async function toggleDebtSettled(id, status) { await fetch(`/api/debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ is_settled: status })}); loadDebtsData(); }
 
         document.getElementById('debtForm').addEventListener('submit', async (e) => {
@@ -377,7 +369,6 @@
             document.getElementById('debtForm').reset(); loadDebtsData();
         });
 
-        // --- الديون التي علينا للموردين ---
         async function loadSupplierDebtsData() {
             const res = await fetch('/api/supplier-debts'); supplierDebts = await res.json() || []; let sum = 0;
             const container = document.getElementById('supplierDebtsContainer'); container.innerHTML = '';
@@ -386,32 +377,23 @@
                 if(!sd.is_paid) sum += parseFloat(sd.amount);
                 const card = document.createElement('div');
                 card.className = `p-4 rounded-xl border text-xs space-y-2 ${sd.is_paid ? 'bg-slate-900/30 border-slate-900 text-slate-500' : 'bg-amber-500/5 border-amber-500/20'}`;
-                
                 card.innerHTML = `
                     <div class="flex flex-wrap justify-between items-center gap-2">
                         <div>
-                            <span class="font-bold text-slate-200 text-sm">${sd.supplier_name}</span> 
-                            <span class="text-slate-400 font-mono">(${sd.supplier_phone})</span>
-                            <p class="text-[10px] text-slate-400">تاريخ الأخذ: ${sd.taken_date} | البضاعة: ${sd.notes}</p>
-                            ${sd.is_paid ? `<p class="text-emerald-400 font-bold text-[10px]">✅ تم السداد بتاريخ: ${sd.settled_date} عبر (${sd.pay_method})</p>` : ''}
+                            <span class="font-bold text-slate-200 text-sm">${sd.supplier_name}</span> <span class="text-slate-400 font-mono">(${sd.supplier_phone})</span>
+                            <p class="text-[10px] text-slate-400">تاريخ: ${sd.taken_date || ''} | بضاعة: ${sd.notes}</p>
+                            ${sd.is_paid ? `<p class="text-emerald-400 font-bold text-[10px]">✅ تم السداد: ${sd.settled_date} (${sd.pay_method})</p>` : ''}
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="number" id="supplierAmt-${sd.id}" value="${sd.amount}" class="w-16 bg-slate-950 border border-slate-800 text-center font-mono font-bold text-amber-400 p-1 rounded">
                             <button onclick="saveSupplierDebtAmount('${sd.id}')" class="bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-slate-950 text-[10px] px-1.5 py-1 rounded border border-amber-500/30 transition-all font-bold">حفظ 💾</button>
-                            
                             ${!sd.is_paid ? `
                                 <div class="flex gap-1 items-center bg-slate-950 p-1.5 rounded-lg border border-slate-800">
-                                    <select id="payMethod-${sd.id}" class="bg-slate-900 text-[10px] rounded p-1 text-slate-300">
-                                        <option value="جوال بي">جوال بي</option>
-                                        <option value="محفظة رقمية">محفظة رقمية</option>
-                                        <option value="كاش">كاش من المحل</option>
-                                    </select>
-                                    <input type="text" id="payNumber-${sd.id}" placeholder="رقم المحول له..." class="w-24 bg-slate-900 text-[10px] rounded p-1 font-mono text-center">
+                                    <select id="payMethod-${sd.id}" class="bg-slate-900 text-[10px] rounded p-1 text-slate-300"><option value="جوال بي">جوال بي</option><option value="محفظة رقمية">محفظة رقمية</option><option value="كاش">كاش</option></select>
+                                    <input type="text" id="payNumber-${sd.id}" placeholder="رقم التحويل..." class="w-24 bg-slate-900 text-[10px] rounded p-1 font-mono text-center">
                                     <button onclick="settleSupplierDebt('${sd.id}')" class="bg-amber-500 text-slate-950 px-2 py-1 rounded font-bold text-[10px]">تسجيل سداد</button>
                                 </div>
-                            ` : `
-                                <button onclick="unsettleSupplierDebt('${sd.id}')" class="bg-slate-800 text-slate-400 px-2 py-1 rounded text-[10px]">إلغاء السداد</button>
-                            `}
+                            ` : `<button onclick="unsettleSupplierDebt('${sd.id}')" class="bg-slate-800 text-slate-400 px-2 py-1 rounded text-[10px]">إلغاء السداد</button>`}
                             <button onclick="deleteSupplierDebt('${sd.id}')" class="text-red-500 text-sm font-bold px-1">🗑️</button>
                         </div>
                     </div>
@@ -424,36 +406,30 @@
         async function saveSupplierDebtAmount(id) {
             const amtVal = document.getElementById(`supplierAmt-${id}`).value;
             await fetch(`/api/supplier-debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ amount: amtVal }) });
-            alert("تم تحديث دين الشركة والمورد بنجاح! 🔥");
-            loadSupplierDebtsData();
+            alert("تم تحديث دين المورد!"); loadSupplierDebtsData();
         }
 
         document.getElementById('supplierDebtForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const response = await fetch('/api/supplier-debts', {
+            await fetch('/api/supplier-debts', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ supplier_name: document.getElementById('sdName').value, supplier_phone: document.getElementById('sdPhone').value, amount: document.getElementById('sdAmount').value, notes: document.getElementById('sdNotes').value })
             });
-            if(response.ok) {
-                document.getElementById('supplierDebtForm').reset(); 
-                loadSupplierDebtsData();
-            } else {
-                alert("حدث خطأ أثناء الاتصال بالسيرفر لحفظ الدين المورد");
-            }
+            document.getElementById('supplierDebtForm').reset(); loadSupplierDebtsData();
         });
 
         async function settleSupplierDebt(id) {
             const pay_method = document.getElementById(`payMethod-${id}`).value;
             const transfer_to_number = document.getElementById(`payNumber-${id}`).value || 'مباشر';
-            const settled_date = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const settled_date = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
             await fetch(`/api/supplier-debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ is_paid: true, pay_method, transfer_to_number, settled_date }) });
             loadSupplierDebtsData();
         }
         async function unsettleSupplierDebt(id) { await fetch(`/api/supplier-debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ is_paid: false, pay_method: '', transfer_to_number: '', settled_date: '' }) }); loadSupplierDebtsData(); }
-        async function deleteSupplierDebt(id) { if(confirm("هل تريد حذف قيد هذا المورد نهائياً؟")) { await fetch(`/api/supplier-debts/${id}`, { method: 'DELETE' }); loadSupplierDebtsData(); } }
+        async function deleteSupplierDebt(id) { if(confirm("حذف قيد المورد؟")) { await fetch(`/api/supplier-debts/${id}`, { method: 'DELETE' }); loadSupplierDebtsData(); } }
 
-        // --- سيرفر iCloud المالي ---
+        // --- iCloud سيرفر ---
         async function loadIcloudData() {
             const res = await fetch('/api/icloud-services'); icloudServices = await res.json() || [];
             const container = document.getElementById('secIcloud'); container.innerHTML = '';
@@ -471,9 +447,9 @@
                 container.appendChild(div);
             });
         }
-        async function saveIcloudService(id) { await fetch(`/api/icloud-services/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cost_ils: document.getElementById(`price-${id}`).value, expected_time: document.getElementById(`time-${id}`).value, status: document.getElementById(`status-${id}`).value }) }); alert('تم الحفظ أونلاين!'); loadIcloudData(); }
+        async function saveIcloudService(id) { await fetch(`/api/icloud-services/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cost_ils: document.getElementById(`price-${id}`).value, expected_time: document.getElementById(`time-${id}`).value, status: document.getElementById(`status-${id}`).value }) }); alert('تم الحفظ!'); loadIcloudData(); }
 
-        // --- واجهة وبحث الزبائن العامة ---
+        // --- الزبائن العامه وتتبع الأجهزة الواردة ---
         async function fetchClientData() {
             const r1 = await fetch('/api/devices'); const d1 = await r1.json(); allDevices = d1.devices || [];
             const r2 = await fetch('/api/icloud-services'); icloudServices = await r2.json() || [];
@@ -488,7 +464,7 @@
         document.getElementById('clientOrderForm').addEventListener('submit', async (e) => {
             e.preventDefault(); const customer_name = document.getElementById('clName').value;
             await fetch('/api/devices', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ customer_name, phone_model: document.getElementById('clModel').value, notes: document.getElementById('clNotes').value, is_client_order: true }) });
-            alert(`👋 تم إرسال جهازك بنجاح! ابحث باسمك لمتابعة حالة القبول أو الرفض والسعر.`);
+            alert(`👋 تم إرسال جهازك بنجاح! تابع حالة الرد بالبحث عن اسمك.`);
             document.getElementById('clientOrderForm').reset(); fetchClientData();
         });
 
@@ -496,23 +472,20 @@
             const query = document.getElementById('clientSearchInput').value.toLowerCase().trim();
             const resultDiv = document.getElementById('clientResult'); resultDiv.innerHTML = ''; if(!query) return;
             const filtered = allDevices.filter(d => d.customer_name.toLowerCase().includes(query));
-            if(filtered.length === 0) { resultDiv.innerHTML = `<p class="text-center p-3 text-xs bg-slate-900 rounded-xl text-slate-400">❌ لم يتم العثور على أي طلب أو جهاز مسجل بهذا الاسم</p>`; return; }
+            if(filtered.length === 0) { resultDiv.innerHTML = `<p class="text-center p-3 text-xs bg-slate-900 rounded-xl text-slate-400">❌ لم يتم العثور على أي طلب مسجل بهذا الاسم</p>`; return; }
             
             filtered.forEach(d => {
-                const box = document.createElement('div');
-                let colorClass = "bg-blue-950/20 border-blue-500/20 text-blue-400";
-                let displayStatus = d.status;
-
+                const box = document.createElement('div'); let colorClass = "bg-blue-950/20 border-blue-500/20 text-blue-400"; let displayStatus = d.status;
                 if(d.status === 'طلب معلق') { colorClass = "bg-amber-950/20 border-amber-500/20 text-amber-400"; displayStatus = "قيد المراجعة والانتظار ⏳"; }
-                if(d.status === 'مرفوض') { colorClass = "bg-red-950/20 border-red-500/20 text-red-400"; displayStatus = "تم رفض الطلب ❌"; }
+                if(d.status === 'مرفوض') { colorClass = "bg-red-950/20 border-red-500/20 text-red-400"; displayStatus = "تم رفض الطلب من الفني ❌"; }
                 if(d.status === 'قيد الانتظار') { colorClass = "bg-indigo-950/20 border-indigo-500/20 text-indigo-400"; displayStatus = "تم قبول جهازك وبدأ العمل عليه ⚙️"; }
 
                 box.className = `border p-4 rounded-xl text-xs space-y-2 ${colorClass}`;
                 box.innerHTML = `
                     <div class="flex justify-between font-bold"><span>📱 جهاز: ${d.phone_model}</span> <span class="font-mono">${d.cost > 0 ? d.cost + ' ₪' : 'في انتظار التسعير'}</span></div>
-                    <p class="text-slate-200 font-bold">حالة الجهاز الحالية الحية: <span class="underline">${displayStatus}</span></p>
-                    <p class="text-slate-400 text-[11px]">تفاصيل مشكلتك: ${d.notes}</p>
-                    ${d.reply_message ? `<div class="bg-slate-950 p-2.5 rounded border border-slate-800 text-teal-300 font-medium">💬 رد الفني الرسمي: ${d.reply_message}</div>` : ''}
+                    <p class="text-slate-200 font-bold">حالة الجهاز: <span class="underline">${displayStatus}</span></p>
+                    <p class="text-slate-400 text-[11px]">المشكلة: ${d.notes}</p>
+                    ${d.reply_message ? `<div class="bg-slate-950 p-2.5 rounded border border-slate-800 text-teal-300 font-medium">💬 رد الفني: ${d.reply_message}</div>` : ''}
                 `;
                 resultDiv.appendChild(box);
             });
