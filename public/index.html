@@ -8,7 +8,6 @@
     <style>
         .neon-border { box-shadow: 0 0 15px rgba(20, 184, 166, 0.4); }
         .neon-text { text-shadow: 0 0 10px rgba(20, 184, 166, 0.5); }
-        /* إلغاء أسهم الارتفاع والانخفاض المزعجة في خانات الأرقام */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -25,7 +24,7 @@
         
         <header class="text-center my-6">
             <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 neon-text tracking-wide mb-1">طـه فـون</h1>
-            <p class="text-xs text-slate-400 uppercase tracking-widest">النظام الموحد للتحكم بالصيانةوالسحابة</p>
+            <p class="text-xs text-slate-400 uppercase tracking-widest">النظام الموحد للتحكم بالصيانة والسحابة</p>
         </header>
 
         <div id="authChoice" class="flex justify-center gap-4 my-4">
@@ -44,29 +43,33 @@
                 <div class="flex gap-2 text-xs sm:text-sm">
                     <button id="t1" onclick="switchManagerTab('devices')" class="text-teal-400 border-b-2 border-teal-500 font-bold pb-2 px-3">🛠️ الأجهزة والمالية</button>
                     <button id="t4" onclick="switchManagerTab('incoming')" class="text-slate-400 font-bold pb-2 px-3 relative">📥 طلبات الزبائن <span id="incomingBadge" class="bg-blue-500 text-white text-[9px] px-1.5 py-0.5 rounded-full hidden">0</span></button>
-                    <button id="t2" onclick="switchManagerTab('debts')" class="text-slate-400 font-bold pb-2 px-3">💰 دفتر الديون (الدين / المدين)</button>
+                    <button id="t2" onclick="switchManagerTab('debts')" class="text-slate-400 font-bold pb-2 px-3">💰 دفتر الديون</button>
                     <button id="t3" onclick="switchManagerTab('icloud')" class="text-slate-400 font-bold pb-2 px-3">☁️ سيرفر iCloud</button>
                 </div>
                 <button onclick="logoutTechnical()" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-slate-950 text-xs px-3 py-1 rounded-lg font-bold transition-all">🔒 قفل اللوحة</button>
             </div>
 
             <div id="secDevices" class="space-y-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
                     <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl">
                         <p class="text-[10px] text-slate-400">صافي البرمجة (50%)</p>
-                        <p id="statSoftware" class="text-lg font-black text-teal-400">0 ₪</p>
+                        <p id="statSoftware" class="text-base font-black text-teal-400">0 ₪</p>
                     </div>
                     <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl">
                         <p class="text-[10px] text-slate-400">المتبقي للمبرمج</p>
-                        <p id="statRemaining" class="text-lg font-black text-blue-400">0 ₪</p>
+                        <p id="statRemaining" class="text-base font-black text-blue-400">0 ₪</p>
                     </div>
                     <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl border-purple-500/20">
                         <p class="text-[10px] text-purple-400">صافي الصيانة (30%)</p>
-                        <p id="statPartner" class="text-lg font-black text-purple-400">0 ₪</p>
+                        <p id="statPartner" class="text-base font-black text-purple-400">0 ₪</p>
                     </div>
-                    <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl">
+                    <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl border-red-500/20">
+                        <p class="text-[10px] text-red-400">التكلفة الخارجة (القطع)</p>
+                        <p id="statExtraCosts" class="text-base font-black text-red-400">0 ₪</p>
+                    </div>
+                    <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl col-span-2 md:col-span-1">
                         <p class="text-[10px] text-slate-400">إجمالي الصيانة والبرمجة</p>
-                        <p id="statHardware" class="text-lg font-black text-amber-400">0 ₪</p>
+                        <p id="statHardware" class="text-base font-black text-amber-400">0 ₪</p>
                     </div>
                 </div>
 
@@ -76,14 +79,14 @@
                         <input type="text" id="customerName" placeholder="اسم الزبون..." required class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 text-slate-200">
                         <input type="text" id="phoneModel" placeholder="موديل الهاتف..." required class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 text-slate-200">
                         <select id="issueType" class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 text-slate-300">
-                            <option value="البرمجة">البرمجة (حسبة 50%)</option>
-                            <option value="الصيانة (30%)">الصيانة  (حسبة 30%)</option>
-                            <option value="إجمالي الصيانة والبرمجة">إجمالي الصيانة والبرمجة للمحل</option>
+                            <option value="سوفتوير">البرمجة (حسبة 50%)</option>
+                            <option value="صيانة شريك">الصيانة (حسبة 30%)</option>
+                            <option value="عام للمحل">إجمالي الصيانة والبرمجة للمحل</option>
                         </select>
-                        <input type="number" id="cost" placeholder="المبلغ المطلوب..." required class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 font-mono">
-                        <input type="number" id="extraCost" placeholder="تكلفة القطع الخارجية..." class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 font-mono">
-                        <input type="text" id="notes" placeholder="ملاحظات العطل..." class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2">
-                        <button type="submit" class="sm:col-span-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition-all">حفظ وتثبيت أونلاين</button>
+                        <input type="number" id="cost" placeholder="المبلغ المطلوب الكامل..." required class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 font-mono">
+                        <input type="number" id="extraCost" placeholder="تكلفة القطع الخارجية ان وجدت..." class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2 font-mono">
+                        <input type="text" id="notes" placeholder="ملاحظات العطل والقطع المبدلة..." class="bg-slate-950 border border-slate-800 text-xs rounded-xl p-2">
+                        <button type="submit" class="sm:col-span-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition-all">حفظ وتثبيت أونلاين الحسبة</button>
                     </form>
                 </div>
                 <div id="devicesContainer" class="space-y-2"></div>
@@ -133,8 +136,8 @@
                 <h4 class="text-xs font-bold text-blue-400 flex items-center gap-1">➕ هل لديك جهاز يحتاج صيانة أو فك؟ أرسل طلبك الحين:</h4>
                 <form id="clientOrderForm" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <input type="text" id="clName" placeholder="اكتب اسمك الثلاثي بالكامل..." required class="bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200">
-                    <input type="text" id="clModel" placeholder="موديل هاتفك (مثال: iPhone 14 Pro)..." required class="bg-slate-900 border border-slate-800 rounded-lg p-2">
-                    <input type="text" id="clNotes" placeholder="اكتب مشكلة الجهاز بالظبط (مثال: فك آيكلود لوك)..." required class="sm:col-span-2 bg-slate-900 border border-slate-800 rounded-lg p-2">
+                    <input type="text" id="clModel" placeholder="موديل هاتفك..." required class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                    <input type="text" id="clNotes" placeholder="اكتب مشكلة الجهاز بالظبط..." required class="sm:col-span-2 bg-slate-900 border border-slate-800 rounded-lg p-2">
                     <button type="submit" class="sm:col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg transition-all">🚀 إرسال طلب الصيانة أونلاين للمحل</button>
                 </form>
             </div>
@@ -186,13 +189,68 @@
             else { document.getElementById('secIcloud').classList.remove('hidden'); document.getElementById('t3').className = "text-blue-400 border-b-2 border-blue-500 font-bold pb-2 px-3"; }
         }
 
+        // --- دالة الحسبة الفورية والمحسنة برمجياً بالكامل ---
+        function recalculateStatsLocally() {
+            let totalSoftware = 0;
+            let myRemaining = 0;
+            let partnerShare = 0;
+            let totalExtra = 0;
+            let totalHardware = 0;
+
+            allDevices.forEach(d => {
+                // تجنب احتساب الأجهزة المرفوقة بطلبات معلقة حتى يتم قبولها
+                if (d.status === 'طلب معلق' || d.status === 'مرفوض') return;
+
+                let fullCost = parseFloat(d.cost) || 0;
+                let extCost = parseFloat(d.extra_cost) || 0;
+                
+                // الخصم الحقيقي الفوري للقطع الخارجية
+                let cleanNet = fullCost - extCost;
+                if(cleanNet < 0) cleanNet = 0;
+
+                totalExtra += extCost;
+                totalHardware += fullCost;
+
+                // فحص الحالات المصححة بشكل مرن ودقيق
+                if (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة') {
+                    totalSoftware += (cleanNet * 0.5);
+                    myRemaining += (cleanNet * 0.5);
+                } else if (d.issue_type === 'صيانة شريك' || d.issue_type === 'الصيانة (30%)') {
+                    partnerShare += (cleanNet * 0.3);
+                    myRemaining += (cleanNet * 0.7); 
+                } else {
+                    myRemaining += cleanNet; // إجمالي عام أو للمحل
+                }
+            });
+
+            // تطبيق وعرض المخرجات بدون تدمير القيمة الرياضية للمتغيرات
+            document.getElementById('statSoftware').innerText = totalSoftware.toFixed(1) + ' ₪';
+            document.getElementById('statRemaining').innerText = myRemaining.toFixed(1) + ' ₪';
+            document.getElementById('statPartner').innerText = partnerShare.toFixed(1) + ' ₪';
+            document.getElementById('statExtraCosts').innerText = totalExtra.toFixed(1) + ' ₪';
+            document.getElementById('statHardware').innerText = totalHardware.toFixed(1) + ' ₪';
+        }
+
         // --- إدارة صيانة المحل والطلبات الواردة ---
         async function loadDevicesData() {
-            const res = await fetch('/api/devices'); const data = await res.json(); allDevices = data.devices || [];
-            document.getElementById('statSoftware').innerText = (data.stats.totalSoftwareWeek || 0) + ' ₪';
-            document.getElementById('statRemaining').innerText = (data.stats.myRemaining || 0) + ' ₪';
-            document.getElementById('statPartner').innerText = (data.stats.partnerShareWeek || 0) + ' ₪';
-            document.getElementById('statHardware').innerText = (data.stats.totalHardware || 0) + ' ₪';
+            try {
+                const res = await fetch('/api/devices'); 
+                const data = await res.json(); 
+                allDevices = data.devices || [];
+                
+                if(data.stats && typeof data.stats.totalSoftwareWeek !== 'undefined') {
+                    document.getElementById('statSoftware').innerText = (data.stats.totalSoftwareWeek || 0) + ' ₪';
+                    document.getElementById('statRemaining').innerText = (data.stats.myRemaining || 0) + ' ₪';
+                    document.getElementById('statPartner').innerText = (data.stats.partnerShareWeek || 0) + ' ₪';
+                    document.getElementById('statHardware').innerText = (data.stats.totalHardware || 0) + ' ₪';
+                    let localExt = 0; allDevices.forEach(x => localExt += (parseFloat(x.extra_cost) || 0));
+                    document.getElementById('statExtraCosts').innerText = localExt + ' ₪';
+                } else {
+                    recalculateStatsLocally();
+                }
+            } catch(e) {
+                recalculateStatsLocally();
+            }
             
             const container = document.getElementById('devicesContainer'); container.innerHTML = '';
             const incomingContainer = document.getElementById('incomingContainer'); incomingContainer.innerHTML = '';
@@ -207,7 +265,7 @@
                         <div class="flex justify-between font-bold"><span>👤 : ${d.customer_name}</span><span class="text-blue-400">📱 جهاز: ${d.phone_model}</span></div>
                         <p class="text-slate-300 bg-slate-950 p-2 rounded">📝 المشكلة: ${d.notes}</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                            <input type="number" id="incPrice-${d.id}" placeholder="حدد السعر المطلـوب..." class="bg-slate-950 border border-slate-800 rounded p-1.5 font-mono text-teal-300">
+                            <input type="number" id="incPrice-${d.id}" placeholder="المبلغ المطلوب..." class="bg-slate-950 border border-slate-800 rounded p-1.5 font-mono text-teal-300">
                             <select id="incType-${d.id}" class="bg-slate-950 border border-slate-800 rounded p-1.5 text-slate-300"><option value="سوفتوير">سوفتوير (50%)</option><option value="صيانة شريك">صيانة شريك (30%)</option></select>
                             <input type="text" id="incReply-${d.id}" placeholder="الرد والمدة للزبون..." class="bg-slate-950 border border-slate-800 rounded p-1.5 text-slate-300">
                         </div>
@@ -219,14 +277,15 @@
                     incomingContainer.appendChild(incCard);
                 } else {
                     const card = document.createElement('div');
+                    let issueLabel = (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة') ? 'برمجة 50%' : ((d.issue_type === 'صيانة شريك' || d.issue_type === 'الصيانة (30%)') ? 'صيانة 30%' : 'عام للمحل');
                     card.className = "bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs";
                     card.innerHTML = `
                         <div class="space-y-1">
                             <p class="font-bold text-slate-200"><input type="text" value="${d.customer_name}" onchange="updateDeviceFields('${d.id}', {customer_name: this.value})" class="bg-transparent focus:bg-slate-950 rounded px-1 text-teal-400"> (${d.phone_model})</p>
-                            <p class="text-slate-400 text-[11px]">حالة: <span class="text-teal-400 font-bold">${d.status}</span> | ملاحظة: <input type="text" value="${d.notes||''}" onchange="updateDeviceFields('${d.id}', {notes: this.value})" class="bg-transparent text-slate-300 focus:bg-slate-950 rounded px-1 w-48"></p>
+                            <p class="text-slate-400 text-[11px]">نوع: <span class="text-purple-400">${issueLabel}</span> | قطعة خارجة: <span class="text-red-400 font-mono">${d.extra_cost || 0} ₪</span> | ملاحظة: <input type="text" value="${d.notes||''}" onchange="updateDeviceFields('${d.id}', {notes: this.value})" class="bg-transparent text-slate-300 focus:bg-slate-950 rounded px-1 w-44"></p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="number" id="costInput-${d.id}" value="${d.cost}" class="w-16 bg-slate-950 border border-slate-800 text-center font-mono font-bold text-teal-400 p-1 rounded">
+                            <input type="number" id="costInput-${d.id}" value="${d.cost}" class="w-14 bg-slate-950 border border-slate-800 text-center font-mono font-bold text-teal-400 p-1 rounded">
                             <button onclick="saveDeviceCost('${d.id}')" class="bg-teal-500/20 hover:bg-teal-500 text-teal-400 hover:text-slate-950 text-[10px] px-1.5 py-1 rounded border border-teal-500/30 transition-all font-bold">حفظ 💾</button>
                             <button onclick="toggleDevicePaid('${d.id}', ${!d.is_paid})" class="px-2 py-1 rounded font-bold text-[10px] ${d.is_paid?'bg-emerald-500/20 text-emerald-400':'bg-amber-500/20 text-amber-400'}">${d.is_paid?'🟢 مدفوع':'🟡 غير مدفوع'}</button>
                             <button onclick="deleteDevice('${d.id}')" class="text-red-500 hover:text-red-400 font-bold px-1 text-sm">🗑️</button>
@@ -241,11 +300,15 @@
         async function saveDeviceCost(id) {
             const costVal = document.getElementById(`costInput-${id}`).value;
             await updateDeviceFields(id, { cost: costVal });
-            alert("تم حفظ وتثبيت السعر الجديد بنجاح في السحاب! 🚀");
+            alert("تم حفظ وتثبيت السعر الجديد بنجاح وتعديل الصافي! 🚀");
             loadDevicesData();
         }
 
-        async function updateDeviceFields(id, fields) { await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(fields) }); }
+        async function updateDeviceFields(id, fields) { 
+            await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(fields) }); 
+            loadDevicesData();
+        }
+        
         async function deleteDevice(id) { if(confirm("هل أنت متأكد من مسح هذا الجهاز نهائياً؟")) { await fetch(`/api/devices/${id}`, { method: 'DELETE' }); loadDevicesData(); } }
         
         async function replyToClientOrder(id, statusField) {
@@ -253,17 +316,15 @@
             const issue_type = document.getElementById(`incType-${id}`) ? document.getElementById(`incType-${id}`).value : 'سوفتوير';
             const reply_message = document.getElementById(`incReply-${id}`) ? document.getElementById(`incReply-${id}`).value : '';
             await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ status: statusField, cost, issue_type, reply_message }) });
-            alert('تم الرد على طلب الزبون بنجاح!'); loadDevicesData();
+            alert('تم الرد على طلب الزبون بنجاح وثبتت الحسبة المحددة!'); loadDevicesData();
         }
 
         document.getElementById('deviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // تحويل مسمى الواجهة إلى المسمى المالي المفهوم برمجياً بالسيرفر لتفادي مشكلة الصافي
-            let rawType = document.getElementById('issueType').value;
-            let backendType = rawType;
-            if (rawType === "البرمجة") backendType = "سوفتوير";
-            else if (rawType === "الصيانة (30%)") backendType = "صيانة شريك";
+            const costInput = parseFloat(document.getElementById('cost').value) || 0;
+            const extraCostInput = parseFloat(document.getElementById('extraCost').value) || 0;
+            const chosenType = document.getElementById('issueType').value;
 
             await fetch('/api/devices', { 
                 method: 'POST', 
@@ -271,17 +332,18 @@
                 body: JSON.stringify({ 
                     customer_name: document.getElementById('customerName').value, 
                     phone_model: document.getElementById('phoneModel').value, 
-                    issue_type: backendType, 
-                    cost: document.getElementById('cost').value, 
-                    extra_cost: document.getElementById('extraCost').value || 0, 
+                    issue_type: chosenType, 
+                    cost: costInput, 
+                    extra_cost: extraCostInput, 
                     notes: document.getElementById('notes').value 
                 }) 
             });
+            
             document.getElementById('deviceForm').reset(); 
             loadDevicesData();
         });
 
-        // --- إدارة الديون التي لنا (shop_debts) ---
+        // --- دفتر الديون (shop_debts) ---
         async function loadDebtsData() {
             const res = await fetch('/api/debts'); allDebts = await res.json() || []; let sum = 0;
             const container = document.getElementById('debtsContainer'); container.innerHTML = '';
@@ -323,7 +385,7 @@
             document.getElementById('debtForm').reset(); loadDebtsData();
         });
 
-        // --- إدارة الديون التي علينا للموردين ---
+        // --- الديون التي علينا للموردين ---
         async function loadSupplierDebtsData() {
             const res = await fetch('/api/supplier-debts'); supplierDebts = await res.json() || []; let sum = 0;
             const container = document.getElementById('supplierDebtsContainer'); container.innerHTML = '';
@@ -339,7 +401,7 @@
                             <span class="font-bold text-slate-200 text-sm">${sd.supplier_name}</span> 
                             <span class="text-slate-400 font-mono">(${sd.supplier_phone})</span>
                             <p class="text-[10px] text-slate-400">تاريخ الأخذ: ${sd.taken_date} | البضاعة: ${sd.notes}</p>
-                            ${sd.is_paid ? `<p class="text-emerald-400 font-bold text-[10px]">✅ تم السداد بتاريخ: ${sd.settled_date} عبر (${sd.pay_method}) للحساب: ${sd.transfer_to_number}</p>` : ''}
+                            ${sd.is_paid ? `<p class="text-emerald-400 font-bold text-[10px]">✅ تم السداد بتاريخ: ${sd.settled_date} عبر (${sd.pay_method})</p>` : ''}
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="number" id="supplierAmt-${sd.id}" value="${sd.amount}" class="w-16 bg-slate-950 border border-slate-800 text-center font-mono font-bold text-amber-400 p-1 rounded">
@@ -350,7 +412,6 @@
                                     <select id="payMethod-${sd.id}" class="bg-slate-900 text-[10px] rounded p-1 text-slate-300">
                                         <option value="جوال بي">جوال بي</option>
                                         <option value="محفظة رقمية">محفظة رقمية</option>
-                                        <option value="حساب بنكي">حساب بنكي</option>
                                         <option value="كاش">كاش من المحل</option>
                                     </select>
                                     <input type="text" id="payNumber-${sd.id}" placeholder="رقم المحول له..." class="w-24 bg-slate-900 text-[10px] rounded p-1 font-mono text-center">
@@ -400,7 +461,7 @@
         async function unsettleSupplierDebt(id) { await fetch(`/api/supplier-debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ is_paid: false, pay_method: '', transfer_to_number: '', settled_date: '' }) }); loadSupplierDebtsData(); }
         async function deleteSupplierDebt(id) { if(confirm("هل تريد حذف قيد هذا المورد نهائياً؟")) { await fetch(`/api/supplier-debts/${id}`, { method: 'DELETE' }); loadSupplierDebtsData(); } }
 
-        // --- آيكلود السيرفر الواجهة الخلفية للفني ---
+        // --- سيرفر iCloud المالي ---
         async function loadIcloudData() {
             const res = await fetch('/api/icloud-services'); icloudServices = await res.json() || [];
             const container = document.getElementById('secIcloud'); container.innerHTML = '';
@@ -451,7 +512,7 @@
                 let displayStatus = d.status;
 
                 if(d.status === 'طلب معلق') { colorClass = "bg-amber-950/20 border-amber-500/20 text-amber-400"; displayStatus = "قيد المراجعة والانتظار ⏳"; }
-                if(d.status === 'مرفوض') { colorClass = "bg-red-950/20 border-red-500/20 text-red-400"; displayStatus = "تم رفض الطلب ❌ (لا يمكن صيانته أو السيرفر مغلق)"; }
+                if(d.status === 'مرفوض') { colorClass = "bg-red-950/20 border-red-500/20 text-red-400"; displayStatus = "تم رفض الطلب ❌"; }
                 if(d.status === 'قيد الانتظار') { colorClass = "bg-indigo-950/20 border-indigo-500/20 text-indigo-400"; displayStatus = "تم قبول جهازك وبدأ العمل عليه ⚙️"; }
 
                 box.className = `border p-4 rounded-xl text-xs space-y-2 ${colorClass}`;
@@ -465,7 +526,10 @@
             });
         }
 
-        async function toggleDevicePaid(id, val) { await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ is_paid: val })}); loadDevicesData(); }
+        async function toggleDevicePaid(id, val) { 
+            await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ is_paid: val })}); 
+            loadDevicesData(); 
+        }
         document.getElementById('passwordInput').addEventListener('keyup', (e) => { if(e.key === 'Enter') checkLogin(); });
 
         checkSessionValidity();
