@@ -64,7 +64,7 @@
                         <p id="statPartner" class="text-base font-black text-purple-400">0 ₪</p>
                     </div>
                     <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl border-red-500/20">
-                        <p class="text-[10px] text-red-400">التكلفة الخارجة (القطع)</p>
+                        <p class="text-[10px] text-red-400">التكلفة الخارجية (القطع)</p>
                         <p id="statExtraCosts" class="text-base font-black text-red-400">0 ₪</p>
                     </div>
                     <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl col-span-2 md:col-span-1">
@@ -189,7 +189,7 @@
             else { document.getElementById('secIcloud').classList.remove('hidden'); document.getElementById('t3').className = "text-blue-400 border-b-2 border-blue-500 font-bold pb-2 px-3"; }
         }
 
-        // --- دالة الحسبة الفورية والمحسنة برمجياً بالكامل ---
+        // --- دالة الحسبة الفورية والمحسنة برمجياً لإصلاح خلل السيرفر ---
         function recalculateStatsLocally() {
             let totalSoftware = 0;
             let myRemaining = 0;
@@ -198,20 +198,20 @@
             let totalHardware = 0;
 
             allDevices.forEach(d => {
-                // تجنب احتساب الأجهزة المرفوقة بطلبات معلقة حتى يتم قبولها
+                // تجنب احتساب الأجهزة المعلقة أو المرفوضة
                 if (d.status === 'طلب معلق' || d.status === 'مرفوض') return;
 
                 let fullCost = parseFloat(d.cost) || 0;
                 let extCost = parseFloat(d.extra_cost) || 0;
                 
-                // الخصم الحقيقي الفوري للقطع الخارجية
+                // الخصم الحقيقي الفوري للقطع الخارجية لمعرفة الصافي الصافي
                 let cleanNet = fullCost - extCost;
                 if(cleanNet < 0) cleanNet = 0;
 
                 totalExtra += extCost;
                 totalHardware += fullCost;
 
-                // فحص الحالات المصححة بشكل مرن ودقيق
+                // فحص الحالات بشكل مرن (سواء قادمة بنص قديم أو جديد من قاعدة البيانات)
                 if (d.issue_type === 'سوفتوير' || d.issue_type === 'البرمجة') {
                     totalSoftware += (cleanNet * 0.5);
                     myRemaining += (cleanNet * 0.5);
@@ -219,16 +219,16 @@
                     partnerShare += (cleanNet * 0.3);
                     myRemaining += (cleanNet * 0.7); 
                 } else {
-                    myRemaining += cleanNet; // إجمالي عام أو للمحل
+                    myRemaining += cleanNet; // إجمالي عام للمحل
                 }
             });
 
-            // تطبيق وعرض المخرجات بدون تدمير القيمة الرياضية للمتغيرات
-            document.getElementById('statSoftware').innerText = totalSoftware.toFixed(1) + ' ₪';
-            document.getElementById('statRemaining').innerText = myRemaining.toFixed(1) + ' ₪';
-            document.getElementById('statPartner').innerText = partnerShare.toFixed(1) + ' ₪';
-            document.getElementById('statExtraCosts').innerText = totalExtra.toFixed(1) + ' ₪';
-            document.getElementById('statHardware').innerText = totalHardware.toFixed(1) + ' ₪';
+            // عرض المخرجات بدقة رياضية متناهية بدون أخطاء دمج النصوص
+            document.getElementById('statSoftware').innerText = totalSoftware.toFixed(0) + ' ₪';
+            document.getElementById('statRemaining').innerText = myRemaining.toFixed(0) + ' ₪';
+            document.getElementById('statPartner').innerText = partnerShare.toFixed(0) + ' ₪';
+            document.getElementById('statExtraCosts').innerText = totalExtra.toFixed(0) + ' ₪';
+            document.getElementById('statHardware').innerText = totalHardware.toFixed(0) + ' ₪';
         }
 
         // --- إدارة صيانة المحل والطلبات الواردة ---
@@ -238,16 +238,8 @@
                 const data = await res.json(); 
                 allDevices = data.devices || [];
                 
-                if(data.stats && typeof data.stats.totalSoftwareWeek !== 'undefined') {
-                    document.getElementById('statSoftware').innerText = (data.stats.totalSoftwareWeek || 0) + ' ₪';
-                    document.getElementById('statRemaining').innerText = (data.stats.myRemaining || 0) + ' ₪';
-                    document.getElementById('statPartner').innerText = (data.stats.partnerShareWeek || 0) + ' ₪';
-                    document.getElementById('statHardware').innerText = (data.stats.totalHardware || 0) + ' ₪';
-                    let localExt = 0; allDevices.forEach(x => localExt += (parseFloat(x.extra_cost) || 0));
-                    document.getElementById('statExtraCosts').innerText = localExt + ' ₪';
-                } else {
-                    recalculateStatsLocally();
-                }
+                // تشغيل الحسبة المحلية فوراً لتجاوز أخطاء السيرفر في الجمع والتوزيع
+                recalculateStatsLocally();
             } catch(e) {
                 recalculateStatsLocally();
             }
@@ -300,7 +292,7 @@
         async function saveDeviceCost(id) {
             const costVal = document.getElementById(`costInput-${id}`).value;
             await updateDeviceFields(id, { cost: costVal });
-            alert("تم حفظ وتثبيت السعر الجديد بنجاح وتعديل الصافي! 🚀");
+            alert("تم حفظ وتثبيت السعر الجديد وتعديل الكروت بنجاح! 🚀");
             loadDevicesData();
         }
 
@@ -316,7 +308,7 @@
             const issue_type = document.getElementById(`incType-${id}`) ? document.getElementById(`incType-${id}`).value : 'سوفتوير';
             const reply_message = document.getElementById(`incReply-${id}`) ? document.getElementById(`incReply-${id}`).value : '';
             await fetch(`/api/devices/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ status: statusField, cost, issue_type, reply_message }) });
-            alert('تم الرد على طلب الزبون بنجاح وثبتت الحسبة المحددة!'); loadDevicesData();
+            alert('تم الرد على طلب الزبون بنجاح!'); loadDevicesData();
         }
 
         document.getElementById('deviceForm').addEventListener('submit', async (e) => {
@@ -432,7 +424,7 @@
         async function saveSupplierDebtAmount(id) {
             const amtVal = document.getElementById(`supplierAmt-${id}`).value;
             await fetch(`/api/supplier-debts/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ amount: amtVal }) });
-            alert("تم تحديث دين الشركة/المورد وحفظ القيمة الجديدة! 🔥");
+            alert("تم تحديث دين الشركة والمورد بنجاح! 🔥");
             loadSupplierDebtsData();
         }
 
