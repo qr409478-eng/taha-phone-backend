@@ -4,19 +4,14 @@ const path = require('path');
 
 app.use(express.json());
 
-// مصفوفة الأجهزة الافتراضية مع دعم الحقول الجديدة لضمان عدم حدوث تصفير أو قيم فارغة
+// مصفوفة الأجهزة المدعومة بالحقول المالية الجديدة لحساب المتبقي بدقة
 let devices = [
-    { id: "1", customer_name: "عبود", phone_model: "سامسونج", issue_type: "صيانة شريك", cost: 200, extra_cost: 120, notes: "شاشة أصلي", status: "مكتمل", is_paid: true, reply_message: "" },
-    { id: "2", customer_name: "فهد", phone_model: "شاومي", issue_type: "سوفتوير", cost: 100, extra_cost: 0, notes: "فك حساب", status: "مكتمل", is_paid: true, reply_message: "" }
+    { id: "1", customer_name: "عبود", phone_model: "سامسونج", issue_type: "صيانة شريك", cost: 200, extra_cost: 40, received_from_owner: 0, notes: "تغيير شاشة", status: "مكتمل", is_paid: true, reply_message: "" },
+    { id: "2", customer_name: "فهد", phone_model: "شاومي", issue_type: "سوفتوير", cost: 100, extra_cost: 40, received_from_owner: 20, notes: "فك حساب", status: "مكتمل", is_paid: true, reply_message: "" }
 ];
 let debts = [];
 let supplierDebts = [];
-let icloudServices = [
-    { id: "1", service_name: "iCloud Clean Bypass", cost_ils: 150, expected_time: "1-3 أيام", status: "شغالة" },
-    { id: "2", service_name: "Lost Mode Premium", cost_ils: 350, expected_time: "5-7 أيام", status: "متوقفة" }
-];
 
-// تقديم المجلد العام للواجهة الأمامية
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
@@ -29,7 +24,7 @@ app.get('/api/devices', (req, res) => {
 });
 
 app.post('/api/devices', (req, res) => {
-    const { customer_name, phone_model, issue_type, cost, extra_cost, notes, is_client_order } = req.body;
+    const { customer_name, phone_model, issue_type, cost, extra_cost, received_from_owner, notes, is_client_order } = req.body;
     const newDevice = {
         id: Date.now().toString(),
         customer_name: customer_name || '',
@@ -37,6 +32,7 @@ app.post('/api/devices', (req, res) => {
         issue_type: issue_type || 'سوفتوير',
         cost: parseFloat(cost) || 0,
         extra_cost: parseFloat(extra_cost) || 0,
+        received_from_owner: parseFloat(received_from_owner) || 0,
         notes: notes || '',
         status: is_client_order ? 'طلب معلق' : 'مكتمل',
         is_paid: false,
@@ -50,12 +46,11 @@ app.put('/api/devices/:id', (req, res) => {
     const { id } = req.params;
     const index = devices.findIndex(d => d.id === id);
     if (index !== -1) {
-        // دمج البيانات الحالية مع البيانات القادمة من الواجهة بشكل آمن لمنع تصفير القيم غير المرسلة
         devices[index] = { ...devices[index], ...req.body };
         
-        // التأكيد الصارم على تحويل الأرقام لمنع دمج النصوص في الحسبة
         if (req.body.cost !== undefined) devices[index].cost = parseFloat(req.body.cost) || 0;
         if (req.body.extra_cost !== undefined) devices[index].extra_cost = parseFloat(req.body.extra_cost) || 0;
+        if (req.body.received_from_owner !== undefined) devices[index].received_from_owner = parseFloat(req.body.received_from_owner) || 0;
         
         res.json(devices[index]);
     } else {
@@ -140,20 +135,5 @@ app.delete('/api/supplier-debts/:id', (req, res) => {
     res.json({ success: true });
 });
 
-// === [API سيرفر iCloud] ===
-app.get('/api/icloud-services', (req, res) => {
-    res.json(icloudServices);
-});
-
-app.put('/api/icloud-services/:id', (req, res) => {
-    const index = icloudServices.findIndex(s => s.id === req.params.id);
-    if (index !== -1) {
-        icloudServices[index] = { ...icloudServices[index], ...req.body };
-        res.json(icloudServices[index]);
-    } else {
-        res.status(404).json({ message: "الخدمة غير موجودة" });
-    }
-});
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 السيرفر يعمل بنجاح على المنفذ ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 السيرفر المالي يعمل بنجاح على المنفذ ${PORT}`));
