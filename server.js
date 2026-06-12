@@ -1,139 +1,127 @@
 const express = require('express');
-const app = express();
-const path = require('path');
+const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
 
+const app = express();
+app.use(cors());
 app.use(express.json());
 
-// مصفوفة الأجهزة المدعومة بالحقول المالية الجديدة لحساب المتبقي بدقة
-let devices = [
-    { id: "1", customer_name: "عبود", phone_model: "سامسونج", issue_type: "صيانة شريك", cost: 200, extra_cost: 40, received_from_owner: 0, notes: "تغيير شاشة", status: "مكتمل", is_paid: true, reply_message: "" },
-    { id: "2", customer_name: "فهد", phone_model: "شاومي", issue_type: "سوفتوير", cost: 100, extra_cost: 40, received_from_owner: 20, notes: "فك حساب", status: "مكتمل", is_paid: true, reply_message: "" }
-];
-let debts = [];
-let supplierDebts = [];
+// البيانات الخاصة بك مدمجة وجاهزة تماماً للعمل الحي أونلاين
+const SUPABASE_URL = "https://buxnqmmbecgtnckygudx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eG5xbW1iZWNndG5ja3lndWR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTA3MjUsImV4cCI6MjA5NjA2NjcyNX0.jqlt5oguM2O9Bh-6rdb61XrqkoOKss8qxUGu-ZixcL0";
 
-app.use(express.static(path.join(__dirname, 'public')));
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const PORT = process.env.PORT || 5000;
+
+// ترحيب وتأكيد تشغيل السيرفر
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.json({ message: "Welcome to Taha Phone Cyberpunk API System 🚀" });
 });
 
-// === [API الأجهزة والصيانة] ===
-app.get('/api/devices', (req, res) => {
-    res.json({ devices: devices });
+// 🔐 نظام الحماية وتوثيق المستخدمين (Auth)
+app.post('/api/auth/signup', async (req, res) => {
+    const { email, password, full_name } = req.body;
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name } }
+    });
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(201).json({ message: "تم إنشاء الحساب بنجاح", data });
 });
 
-app.post('/api/devices', (req, res) => {
-    const { customer_name, phone_model, issue_type, cost, extra_cost, received_from_owner, notes, is_client_order } = req.body;
-    const newDevice = {
-        id: Date.now().toString(),
-        customer_name: customer_name || '',
-        phone_model: phone_model || '',
-        issue_type: issue_type || 'سوفتوير',
-        cost: parseFloat(cost) || 0,
-        extra_cost: parseFloat(extra_cost) || 0,
-        received_from_owner: parseFloat(received_from_owner) || 0,
-        notes: notes || '',
-        status: is_client_order ? 'طلب معلق' : 'مكتمل',
-        is_paid: false,
-        reply_message: ''
-    };
-    devices.push(newDevice);
-    res.status(201).json(newDevice);
+app.post('/api/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return res.status(401).json({ error: error.message });
+    res.json({ message: "تم تسجيل الدخول بنجاح 🔥", session: data.session });
 });
 
-app.put('/api/devices/:id', (req, res) => {
+// 📱 إضافة جهاز جديد مع بياناته المالية والتكاليف
+app.post('/api/devices', async (req, res) => {
+    const { 
+        user_id, customer_name, customer_phone, device_model, operation_details,
+        total_price, is_paid_in_shop, external_cost_usd, external_cost_provider, is_external_cost_paid, advance_payment 
+    } = req.body;
+
+    const { data: deviceData, error: deviceError } = await supabase
+        .from('devices')
+        .insert([{ user_id, customer_name, customer_phone, device_model, operation_details, status: 'pending' }])
+        .select()
+        .single();
+
+    if (deviceError) return res.status(400).json({ error: deviceError.message });
+
+    const { error: financialError } = await supabase
+        .from('financial_records')
+        .insert([{
+            device_id: deviceData.id,
+            total_price: total_price || 0,
+            is_paid_in_shop: is_paid_in_shop || false,
+            external_cost_usd: external_cost_usd || 0,
+            external_cost_provider: external_cost_provider || null,
+            is_external_cost_paid: is_external_cost_paid || false,
+            advance_payment: advance_payment || 0
+        }]);
+
+    if (financialError) return res.status(400).json({ error: financialError.message });
+    res.status(201).json({ message: "تم تسجيل الجهاز والبيانات المالية بنجاح 🖥️", device: deviceData });
+});
+
+// 📊 جلب الحسبة الذكية والتقارير من الـ SQL View التلقائي
+app.get('/api/financials/analytics', async (req, res) => {
+    const { data, error } = await supabase
+        .from('view_financial_analytics')
+        .select('*')
+        .order('record_date', { ascending: false });
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    let totalDailyCost = 0;
+    let totalWeeklyCost = 0;
+    let grossProgrammerIncome = 0;
+    const today = new Date().toISOString().split('T')[0];
+    
+    data.forEach(record => {
+        const recordDate = new Date(record.record_date).toISOString().split('T')[0];
+        grossProgrammerIncome += parseFloat(record.programmer_share || 0);
+
+        if (recordDate === today) {
+            totalDailyCost += parseFloat(record.external_cost_usd || 0);
+        }
+        const diffTime = Math.abs(new Date() - new Date(record.record_date));
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays <= 7) {
+            totalWeeklyCost += parseFloat(record.external_cost_usd || 0);
+        }
+    });
+
+    res.json({
+        records: data,
+        summary: {
+            total_daily_external_cost: totalDailyCost,
+            total_weekly_external_cost: totalWeeklyCost,
+            gross_programmer_income: grossProgrammerIncome
+        }
+    });
+});
+
+// ✏️ التعديل السريع والفوري على مستوى الأسطر الحسابية
+app.put('/api/financials/:id', async (req, res) => {
     const { id } = req.params;
-    const index = devices.findIndex(d => d.id === id);
-    if (index !== -1) {
-        devices[index] = { ...devices[index], ...req.body };
-        
-        if (req.body.cost !== undefined) devices[index].cost = parseFloat(req.body.cost) || 0;
-        if (req.body.extra_cost !== undefined) devices[index].extra_cost = parseFloat(req.body.extra_cost) || 0;
-        if (req.body.received_from_owner !== undefined) devices[index].received_from_owner = parseFloat(req.body.received_from_owner) || 0;
-        
-        res.json(devices[index]);
-    } else {
-        res.status(404).json({ message: "الجهاز غير موجود" });
-    }
+    const updates = req.body;
+    
+    const { data, error } = await supabase
+        .from('financial_records')
+        .update(updates)
+        .eq('id', id)
+        .select();
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ message: "تم تحديث الحسبة بنجاح 📈", data });
 });
 
-app.delete('/api/devices/:id', (req, res) => {
-    devices = devices.filter(d => d.id !== req.params.id);
-    res.json({ success: true });
+app.listen(PORT, () => {
+    console.log(`⚡ Cyberpunk Server is running on port ${PORT}`);
 });
-
-// === [API دفتر الديون العامة] ===
-app.get('/api/debts', (req, res) => {
-    res.json(debts);
-});
-
-app.post('/api/debts', (req, res) => {
-    const { customer_name, amount, items_taken } = req.body;
-    const debt = {
-        id: Date.now().toString(),
-        customer_name: customer_name || '',
-        amount: parseFloat(amount) || 0,
-        items_taken: items_taken || '',
-        is_settled: false
-    };
-    debts.push(debt);
-    res.json(debt);
-});
-
-app.put('/api/debts/:id', (req, res) => {
-    const index = debts.findIndex(db => db.id === req.params.id);
-    if (index !== -1) {
-        debts[index] = { ...debts[index], ...req.body };
-        if (req.body.amount !== undefined) debts[index].amount = parseFloat(req.body.amount) || 0;
-        res.json(debts[index]);
-    } else {
-        res.status(404).json({ message: "الدين غير موجود" });
-    }
-});
-
-app.delete('/api/debts/:id', (req, res) => {
-    debts = debts.filter(db => db.id !== req.params.id);
-    res.json({ success: true });
-});
-
-// === [API ديون الموردين والشركات] ===
-app.get('/api/supplier-debts', (req, res) => {
-    res.json(supplierDebts);
-});
-
-app.post('/api/supplier-debts', (req, res) => {
-    const { supplier_name, supplier_phone, amount, notes } = req.body;
-    const sDebt = {
-        id: Date.now().toString(),
-        supplier_name: supplier_name || '',
-        supplier_phone: supplier_phone || '',
-        amount: parseFloat(amount) || 0,
-        notes: notes || '',
-        is_paid: false,
-        taken_date: new Date().toLocaleDateString('ar-EG'),
-        settled_date: '',
-        pay_method: ''
-    };
-    supplierDebts.push(sDebt);
-    res.json(sDebt);
-});
-
-app.put('/api/supplier-debts/:id', (req, res) => {
-    const index = supplierDebts.findIndex(sd => sd.id === req.params.id);
-    if (index !== -1) {
-        supplierDebts[index] = { ...supplierDebts[index], ...req.body };
-        if (req.body.amount !== undefined) supplierDebts[index].amount = parseFloat(req.body.amount) || 0;
-        res.json(supplierDebts[index]);
-    } else {
-        res.status(404).json({ message: "السجل غير موجود" });
-    }
-});
-
-app.delete('/api/supplier-debts/:id', (req, res) => {
-    supplierDebts = supplierDebts.filter(sd => sd.id !== req.params.id);
-    res.json({ success: true });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 السيرفر المالي يعمل بنجاح على المنفذ ${PORT}`));
