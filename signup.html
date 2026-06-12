@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAHA PHONE - SIGNUP GATE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Tajawal:wght@500;700&display=swap');
+        :root { --bg-color: #0a0a0f; --card-bg: #12121a; --neon-cyan: #00f0ff; --neon-green: #39ff14; --neon-pink: #ff007f; --text-color: #e0e0e6; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Tajawal', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; position: relative; }
+        body::before { content: ''; position: absolute; width: 200%; height: 200%; background-image: linear-gradient(rgba(255, 0, 127, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 127, 0.02) 1px, transparent 1px); background-size: 30px 30px; z-index: 1; animation: grid-move 20s linear infinite; }
+        @keyframes grid-move { 0% { transform: translateY(0); } 100% { transform: translateY(-30px); } }
+        .login-container { background: var(--card-bg); border: 2px solid var(--neon-pink); box-shadow: 0 0 15px rgba(255, 0, 127, 0.2); padding: 40px; border-radius: 4px; width: 100%; max-width: 400px; z-index: 2; position: relative; }
+        .login-container::after { content: 'INITIALIZE SYSTEM'; position: absolute; top: -12px; left: 20px; background: var(--bg-color); padding: 0 10px; font-family: 'Fira Code', monospace; font-size: 12px; color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); }
+        h2 { text-align: center; margin-bottom: 30px; color: #fff; font-size: 24px; text-shadow: 0 0 10px var(--neon-pink); }
+        h2 span { color: var(--neon-cyan); }
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
+        .input-group input { width: 100%; padding: 12px 15px; background: #050508; border: 1px solid #333; border-radius: 4px; color: #fff; font-size: 16px; box-sizing: border-box; }
+        .input-group input:focus { outline: none; border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 127, 0.5); }
+        .btn-submit { width: 100%; padding: 14px; background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 4px; text-shadow: 0 0 5px var(--neon-cyan); }
+        .btn-submit:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan); }
+        .message-box { margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 14px; text-align: center; display: none; }
+        .error { background: rgba(255, 0, 127, 0.1); border: 1px solid var(--neon-pink); color: var(--neon-pink); display: block; }
+        .success { background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); display: block; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>إنشاء حساب <span>طه فون</span></h2>
+        <form id="signupForm">
+            <div class="input-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="fullName" required placeholder="محمد أيمن أبو سعيد">
+            </div>
+            <div class="input-group">
+                <label>البريد الإلكتروني للبرمجيات</label>
+                <input type="email" id="email" required placeholder="admin@tahaphone.com" dir="ltr">
+            </div>
+            <div class="input-group">
+                <label>شفرة العبور (Password)</label>
+                <input type="password" id="password" required placeholder="••••••••" dir="ltr">
+            </div>
+            <button type="submit" class="btn-submit">توليد مفاتيح النظام // SIGNUP</button>
+        </form>
+        <div id="messageBox" class="message-box"></div>
+    </div>
+    <script>
+        const signupForm = document.getElementById('signupForm');
+        const messageBox = document.getElementById('messageBox');
+        const BACKEND_URL = "https://srv-d8m2vqt7vvec73fcg5bg.onrender.com"; // تم التحديث لمعرف السيرفر الأخير الخاص بك
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const full_name = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            messageBox.style.display = 'none';
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, full_name })
+                });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    messageBox.textContent = `❌ فشل التوليد: ${result.error}`;
+                    messageBox.className = 'message-box error';
+                } else {
+                    messageBox.textContent = "✅ تم إنشاء وتشفير حسابك بنجاح في قاعدة البيانات! يمكنك الآن الانتقال لصفحة تسجيل الدخول.";
+                    messageBox.className = 'message-box success';
+                    signupForm.reset();
+                }
+            } catch (error) {
+                messageBox.textContent = "⚠️ خطأ في الاتصال بالسيرفر.";
+                messageBox.className = 'message-box error';
+            }
+        });
+    </script>
+</body>
+</html>
