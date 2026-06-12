@@ -44,8 +44,8 @@
     <script>
         const loginForm = document.getElementById('loginForm');
         const messageBox = document.getElementById('messageBox');
-        // تم توجيه الرابط تلقائياً إلى خادم ريندر الخاص بك أونلاين
-        const BACKEND_URL = "https://srv-d8eov24p3tds738qgutg.onrender.com";
+        // تعديل الرابط هنا أيضاً للرابط الرسمي
+        const BACKEND_URL = "https://taha-phone-backend.onrender.com";
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -71,7 +71,7 @@
                     setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
                 }
             } catch (error) {
-                messageBox.textContent = "⚠️ فشل الاستجابة: تأكد من تشغيل ورفع سيرفر ريندر!";
+                messageBox.textContent = "⚠️ فشل الاستجابة من السيرفر السحابي.";
                 messageBox.className = 'message-box error';
             }
         });
