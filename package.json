@@ -1,0 +1,14 @@
+{
+  "name": "taha-phone-backend",
+  "version": "1.0.0",
+  "description": "Backend System for Taha Phone Management",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}
